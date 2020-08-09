@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace vixikhd\bpcore\api;
+namespace bedrockplay\openapi\floatingtext;
 
 use pocketmine\entity\Entity;
 use pocketmine\item\Item;
@@ -14,7 +14,7 @@ use pocketmine\utils\UUID;
 
 /**
  * Class FloatingTextApi
- * @package vixikhd\bpcore\api
+ * @package bedrockplay\openapi\floatingtext
  */
 class FloatingTextApi {
 
