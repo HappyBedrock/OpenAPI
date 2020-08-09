@@ -1,0 +1,9 @@
+---
+# Server settings
+current-server-id: ""
+
+# Database connection, for creating table scripts, contact vixik
+mysql-host: ""
+mysql-user: ""
+mysql-password: ""
+...
