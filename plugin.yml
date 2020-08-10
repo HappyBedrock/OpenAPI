@@ -1,6 +1,6 @@
 name: OpenAPI
 author: VixikHD
-main: bedrockplay/openapi/OpenAPI
+main: bedrockplay\openapi\OpenAPI
 description: Public API for people who want help contributing BedrockPlay
 version: 1.0.0
 api: 3.0.0

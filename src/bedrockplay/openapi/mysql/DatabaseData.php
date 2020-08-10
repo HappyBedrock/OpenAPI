@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi\mysql;
 
+use bedrockplay\openapi\mysql\query\LazyRegisterQuery;
+
 /**
  * Class DatabaseData
  * @package bedrockplay\openapi\mysql
@@ -11,6 +13,8 @@ namespace bedrockplay\openapi\mysql;
 class DatabaseData {
 
     public const DATABASE = "BedrockPlay";
+    public const TABLE_PREFIX = "BP";
+    public const DEFAULT_TABLE = "Values";
 
     /** @var string $host */
     private static $host;
@@ -18,6 +22,11 @@ class DatabaseData {
     private static $user;
     /** @var string $password */
     private static $password;
+
+    public static function init() {
+        LazyRegisterQuery::addTableToRegister("Values");
+        LazyRegisterQuery::addTableToRegister("Stats"); // TODO - Create table per minigame
+    }
 
     /**
      * @param string $host

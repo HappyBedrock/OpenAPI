@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi\mysql;
 
+use Exception;
 use mysqli;
 use pocketmine\scheduler\AsyncTask;
+use pocketmine\Server;
 
 /**
  * Class AsyncQuery
@@ -13,13 +15,31 @@ use pocketmine\scheduler\AsyncTask;
  */
 abstract class AsyncQuery extends AsyncTask {
 
+    /** @var string $host */
+    public $host;
+    /** @var string $user */
+    public $user;
+    /** @var string $password */
+    public $password;
+
     final public function onRun() {
-        $this->query(new mysqli(DatabaseData::getHost(), DatabaseData::getUser(), DatabaseData::getPassword(), DatabaseData::DATABASE));
+        try {
+            $this->query(new mysqli($this->host, $this->user, $this->password, DatabaseData::DATABASE));
+        }
+        catch (Exception $exception) {}
+    }
+
+    /**
+     * @param Server $server
+     */
+    public function onCompletion(Server $server) {
+        parent::onCompletion($server);
+
+        QueryQueue::activateCallback($this);
     }
 
     /**
      * @param mysqli $mysqli
-     * @return mixed
      */
-    abstract function query(mysqli $mysqli);
+    abstract public function query(mysqli $mysqli): void;
 }

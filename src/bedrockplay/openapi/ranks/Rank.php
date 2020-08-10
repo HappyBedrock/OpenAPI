@@ -12,6 +12,7 @@ class Rank {
 
     /** @var string $name */
     public $name;
+
     /** @var string $chatFormat */
     public $chatFormatting;
     /** @var array $permissions */
@@ -27,7 +28,7 @@ class Rank {
      * @param array $permissions
      * @param bool $isVisible
      */
-    public function __construct(string $name, string $chatFormatting, array $permissions = [], bool $isVisible = false) {
+    public function __construct(string $name, string $chatFormatting, array $permissions = [], bool $isVisible = true) {
         $this->name = $name;
         $this->chatFormatting = $chatFormatting;
         $this->permissions = $permissions;
@@ -62,11 +63,29 @@ class Rank {
     }
 
     /**
-     * Returns trimmed and formatted rank
+     * Format for chat (expample: "OWNER " or "")
      *
      * @return string
      */
-    public function __toString() {
-        return $this->getChatFormatting() . $this->getName();
+    public function getFormatForChat(): string {
+        return $this->isVisible ? $this->getChatFormatting() . strtoupper($this->getName()) . " " : "";
+    }
+
+    /**
+     * Format for display eg. scoreboard (example: "Owner")
+     *
+     * @return string
+     */
+    public function getFormatForDisplay(): string {
+        return $this->getName();
+    }
+
+    /**
+     * Format for player's nametag
+     *
+     * @return string
+     */
+    public function getFormatForNameTag(): string {
+        return $this->isVisible ? $this->getChatFormatting() . strtoupper($this->getName()) . " " : "";
     }
 }

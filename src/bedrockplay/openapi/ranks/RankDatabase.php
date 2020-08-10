@@ -33,7 +33,7 @@ class RankDatabase {
             new Rank("YouTube", "§c§l", ["bedrockplay.bedrock"]),
             new Rank("Voter", "§b§l", ["bedrockplay.voter"]),
             // Guest
-            new Rank("Guest", "§b§l", [])
+            new Rank("Guest", "§b§l", [], false)
         ];
 
         foreach ($ranks as $rank) {
@@ -46,13 +46,20 @@ class RankDatabase {
      * @param string $rank
      */
     public static function savePlayerRank(Player $player, string $rank) {
-        if(!isset(self::$ranks[strtolower($rank)])) {
+        /** @var Rank $rankClass */
+        $rankClass = self::$ranks[strtolower($rank)] ?? null;
+        if($rankClass === null) {
             $player->kick("Invalid rank ($rank)");
             OpenAPI::getInstance()->getLogger()->error("Invalid rank received from database ($rank)");
             return;
         }
 
-        $player->namedtag->setString("Rank", $rank);
+        $player->namedtag->setString("Rank", $rankClass->getName());
+
+        $player->recalculatePermissions();
+        foreach ($rankClass->getPermissions() as $permission) {
+            $player->addAttachment(OpenAPI::getInstance(), $permission, true);
+        }
     }
 
     /**
