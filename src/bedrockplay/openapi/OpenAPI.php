@@ -10,6 +10,7 @@ use bedrockplay\openapi\mysql\query\FetchValueQuery;
 use bedrockplay\openapi\mysql\query\LazyRegisterQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\ranks\RankDatabase;
+use bedrockplay\openapi\servers\ServerManager;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerLoginEvent;
@@ -28,8 +29,6 @@ class OpenAPI extends PluginBase implements Listener {
         self::$instance = $this;
         $this->saveResource("/config.yml", false);
 
-        RankDatabase::init();
-
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
 
         DatabaseData::update(
@@ -38,6 +37,9 @@ class OpenAPI extends PluginBase implements Listener {
             $this->getConfig()->get("mysql-password")
         );
 
+        RankDatabase::init();
+        ServerManager::init();
+
         $logger = $this->getLogger();
         QueryQueue::submitQuery(new ConnectQuery(), function (ConnectQuery $query) use ($logger) {
             if($query->connected) {
@@ -45,9 +47,20 @@ class OpenAPI extends PluginBase implements Listener {
                 return;
             }
 
-            $password = str_repeat("*", strlen($query->password));
+            $password = str_repeat("*", strlen($query->password)); // Logger shouldn't store login credentials
             $logger->error("An error occurred whilst connecting to MySQL database (host={$query->host};user={$query->user};password={$password})!");
         });
+
+        if(
+            !$this->getServer()->getConfigBool("xbox-auth") &&
+            $this->getServer()->getConfigString("server-address", "0.0.0.0") == "0.0.0.0"
+        ) {
+            $logger->warning("Your server is opened and has turned Xbox Auth OFF. Enable Xbox auth or set server address to 127.0.0.1!");
+        }
+    }
+
+    public function onDisable() {
+        ServerManager::save();
     }
 
     /**

@@ -1,6 +1,6 @@
 ---
 # Server settings
-current-server-id: ""
+current-server-name: "Lobby-1"
 
 # Database connection, for creating table scripts, contact vixik
 mysql-host: ""
