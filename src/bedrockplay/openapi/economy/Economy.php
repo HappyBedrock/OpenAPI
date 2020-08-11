@@ -25,6 +25,14 @@ class Economy {
 
     /**
      * @param Player $player
+     * @param int $amount
+     */
+    public static function removeCoins(Player $player, int $amount) {
+        QueryQueue::submitQuery(new AddCoinsQuery($player->getName(), -$amount));
+    }
+
+    /**
+     * @param Player $player
      * @param callable $callback
      */
     public static function getCoins(Player $player, callable $callback) {
