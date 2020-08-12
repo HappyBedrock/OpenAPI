@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi\ranks;
 
+use bedrockplay\openapi\mysql\query\UpdateRowQuery;
+use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\OpenAPI;
 use pocketmine\Player;
 
@@ -44,8 +46,9 @@ class RankDatabase {
     /**
      * @param Player $player
      * @param string $rank
+     * @param bool $saveToDatabase
      */
-    public static function savePlayerRank(Player $player, string $rank) {
+    public static function savePlayerRank(Player $player, string $rank, bool $saveToDatabase = false) {
         /** @var Rank $rankClass */
         $rankClass = self::$ranks[strtolower($rank)] ?? null;
         if($rankClass === null) {
@@ -60,6 +63,10 @@ class RankDatabase {
         foreach ($rankClass->getPermissions() as $permission) {
             $player->addAttachment(OpenAPI::getInstance(), $permission, true);
         }
+
+        if($saveToDatabase) {
+            QueryQueue::submitQuery(new UpdateRowQuery(["Rank" => $rankClass->getName()], "Name", $player->getName()));
+        }
     }
 
     /**
@@ -68,5 +75,13 @@ class RankDatabase {
      */
     public static function getPlayerRank(Player $player): Rank {
         return self::$ranks[strtolower($player->namedtag->getString("Rank"))];
+    }
+
+    /**
+     * @param string $rank
+     * @return Rank
+     */
+    public static function getRankByName(string $rank): Rank {
+        return self::$ranks[strtolower($rank)];
     }
 }

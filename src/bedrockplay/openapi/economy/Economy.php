@@ -6,6 +6,7 @@ namespace bedrockplay\openapi\economy;
 
 use bedrockplay\openapi\mysql\query\AddCoinsQuery;
 use bedrockplay\openapi\mysql\query\FetchValueQuery;
+use bedrockplay\openapi\mysql\query\UpdateRowQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use pocketmine\Player;
 
@@ -29,6 +30,14 @@ class Economy {
      */
     public static function removeCoins(Player $player, int $amount) {
         QueryQueue::submitQuery(new AddCoinsQuery($player->getName(), -$amount));
+    }
+
+    /**
+     * @param Player $player
+     * @param int $amount
+     */
+    public static function setCoins(Player $player, int $amount) {
+        QueryQueue::submitQuery(new UpdateRowQuery(["Coins" => $amount], "Name", $player->getName()));
     }
 
     /**

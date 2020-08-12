@@ -33,12 +33,6 @@ class AddCoinsQuery extends AsyncQuery {
      * @param mysqli $mysqli
      */
     public function query(mysqli $mysqli): void {
-        $query = $mysqli->query("SELECT Coins FROM " . DatabaseData::TABLE_PREFIX . "_" . DatabaseData::DEFAULT_TABLE . " WHERE Name='{$this->player}'");
-        $status = (int)($query->fetch_assoc()["Coins"] ?? 0);
-
-        $status += $this->amount;
-        $status = max(0, $status);
-
-        $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "_" . DatabaseData::DEFAULT_TABLE . " SET Coins='{$status}' WHERE Name={$this->player}");
+        $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "_" . DatabaseData::DEFAULT_TABLE . " SET Coins=Coins+{$this->amount} WHERE Name='{$this->player}'");
     }
 }
