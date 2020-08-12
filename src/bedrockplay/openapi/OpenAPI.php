@@ -14,6 +14,7 @@ use bedrockplay\openapi\servers\ServerManager;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerLoginEvent;
+use pocketmine\network\mcpe\RakLibInterface;
 use pocketmine\plugin\PluginBase;
 
 /**
@@ -56,6 +57,12 @@ class OpenAPI extends PluginBase implements Listener {
             $this->getServer()->getConfigString("server-ip", "0.0.0.0") == "0.0.0.0"
         ) {
             $logger->warning("Your server is opened and has turned Xbox Auth OFF. Enable Xbox auth or set server address to 127.0.0.1!");
+        }
+
+        foreach ($this->getServer()->getNetwork()->getInterfaces() as $interface) {
+            if($interface instanceof RakLibInterface) {
+                $interface->setPacketLimit(PHP_INT_MAX);
+            }
         }
     }
 
