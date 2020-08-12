@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi;
 
+use bedrockplay\openapi\lang\LanguageManager;
 use bedrockplay\openapi\mysql\DatabaseData;
 use bedrockplay\openapi\mysql\query\ConnectQuery;
-use bedrockplay\openapi\mysql\query\FetchValueQuery;
+use bedrockplay\openapi\mysql\query\FetchTableQuery;
 use bedrockplay\openapi\mysql\query\LazyRegisterQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\ranks\RankDatabase;
@@ -40,6 +41,7 @@ class OpenAPI extends PluginBase implements Listener {
 
         RankDatabase::init();
         ServerManager::init();
+        LanguageManager::init();
 
         $logger = $this->getLogger();
         QueryQueue::submitQuery(new ConnectQuery(), function (ConnectQuery $query) use ($logger) {
@@ -77,8 +79,9 @@ class OpenAPI extends PluginBase implements Listener {
         $player = $event->getPlayer();
 
         QueryQueue::submitQuery(new LazyRegisterQuery($player->getName()));
-        QueryQueue::submitQuery(new FetchValueQuery($player->getName(), "Rank"), function (FetchValueQuery $query) use ($player) {
-            RankDatabase::savePlayerRank($player, $query->value);
+        QueryQueue::submitQuery(new FetchTableQuery("Values"), function (FetchTableQuery $query) use ($player) {
+            RankDatabase::savePlayerRank($player, $query->rows["Rank"]);
+            LanguageManager::saveLanguage($player, $query->rows["Lang"]);
         });
     }
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi\lang;
 
+use bedrockplay\openapi\mysql\query\UpdateRowQuery;
+use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\OpenAPI;
 use Exception;
 use pocketmine\Player;
@@ -87,10 +89,11 @@ class LanguageManager {
     /**
      * @param Player $player
      * @param string $languageIndex
+     * @param bool $saveToDatabase
      *
      * @return bool $isSuccess
      */
-    public static function saveLanguage(Player $player, string $languageIndex): bool {
+    public static function saveLanguage(Player $player, string $languageIndex, bool $saveToDatabase = false): bool {
         if(!isset(self::$languageData[$languageIndex])) {
             if(!$player->namedtag->hasTag("Language")) {
                 $player->namedtag->setString("Language", self::DEFAULT_LANGUAGE);
@@ -99,6 +102,10 @@ class LanguageManager {
         }
 
         $player->namedtag->setString("Language", $languageIndex);
+
+        if($saveToDatabase) {
+            QueryQueue::submitQuery(new UpdateRowQuery(["Lang" => $languageIndex], "Name", $player->getName()));
+        }
         return true;
     }
 
