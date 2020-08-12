@@ -53,7 +53,7 @@ class OpenAPI extends PluginBase implements Listener {
 
         if(
             !$this->getServer()->getConfigBool("xbox-auth") &&
-            $this->getServer()->getConfigString("server-address", "0.0.0.0") == "0.0.0.0"
+            $this->getServer()->getConfigString("server-ip", "0.0.0.0") == "0.0.0.0"
         ) {
             $logger->warning("Your server is opened and has turned Xbox Auth OFF. Enable Xbox auth or set server address to 127.0.0.1!");
         }

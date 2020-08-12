@@ -89,6 +89,13 @@ class Server {
     }
 
     /**
+     * @return bool
+     */
+    public function isLobby(): bool {
+        return strpos($this->getServerName(), "Lobby") !== false;
+    }
+
+    /**
      * @param Player $player
      */
     public function transferPlayerHere(Player $player) {
