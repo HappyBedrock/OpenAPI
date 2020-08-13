@@ -7,6 +7,7 @@ namespace bedrockplay\openapi;
 use bedrockplay\openapi\lang\LanguageManager;
 use bedrockplay\openapi\mysql\DatabaseData;
 use bedrockplay\openapi\mysql\query\ConnectQuery;
+use bedrockplay\openapi\mysql\query\FetchRowQuery;
 use bedrockplay\openapi\mysql\query\FetchTableQuery;
 use bedrockplay\openapi\mysql\query\LazyRegisterQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
@@ -84,9 +85,9 @@ class OpenAPI extends PluginBase implements Listener {
         $player = $event->getPlayer();
 
         QueryQueue::submitQuery(new LazyRegisterQuery($player->getName()));
-        QueryQueue::submitQuery(new FetchTableQuery("Values"), function (FetchTableQuery $query) use ($player) {
-            RankDatabase::savePlayerRank($player, $query->rows["Rank"]);
-            LanguageManager::saveLanguage($player, $query->rows["Lang"]);
+        QueryQueue::submitQuery(new FetchRowQuery("Name", $player->getName()), function (FetchRowQuery $query) use ($player) {
+            RankDatabase::savePlayerRank($player, $query->row["Rank"]);
+            LanguageManager::saveLanguage($player, $query->row["Language"]);
         });
     }
 
