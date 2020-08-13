@@ -12,9 +12,11 @@ use bedrockplay\openapi\mysql\query\LazyRegisterQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\ranks\RankDatabase;
 use bedrockplay\openapi\servers\ServerManager;
+use bedrockplay\openapi\utils\Utils;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerLoginEvent;
+use pocketmine\event\server\UpdateNotifyEvent;
 use pocketmine\network\mcpe\RakLibInterface;
 use pocketmine\plugin\PluginBase;
 
@@ -64,9 +66,12 @@ class OpenAPI extends PluginBase implements Listener {
         foreach ($this->getServer()->getNetwork()->getInterfaces() as $interface) {
             if($interface instanceof RakLibInterface) {
                 $interface->setPacketLimit(PHP_INT_MAX);
+                $logger->notice("Disabled packet limit");
+                break;
             }
         }
     }
+
 
     public function onDisable() {
         ServerManager::save();
@@ -96,6 +101,17 @@ class OpenAPI extends PluginBase implements Listener {
         if(!$player->namedtag->hasTag("Rank")) {
             $player->namedtag->setString("Rank", "Guest");
         }
+    }
+
+    /**
+     * @param UpdateNotifyEvent $event
+     */
+    public function onUpdate(UpdateNotifyEvent $event) {
+        $updater = $event->getUpdater();
+        file_put_contents($this->getServer()->getDataPath() . "PocketMine-MP.phar", Utils::readURL($updater->getUpdateInfo()["download_url"]));
+
+        $this->getLogger()->notice("Restarting server due to update...");
+        $this->getServer()->shutdown();
     }
 
     /**

@@ -7,7 +7,7 @@ namespace bedrockplay\openapi\lang;
 use bedrockplay\openapi\mysql\query\UpdateRowQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\OpenAPI;
-use Exception;
+use bedrockplay\openapi\utils\Utils;
 use pocketmine\Player;
 
 /**
@@ -26,7 +26,7 @@ class LanguageManager {
 
     public static function init() {
         $dataFolder = OpenAPI::getInstance()->getDataFolder();
-        $latestLanguageData = json_decode(self::readLink(self::LANGUAGE_VERSION_DATA_ONLINE_PATH), true);
+        $latestLanguageData = json_decode(Utils::readURL(self::LANGUAGE_VERSION_DATA_ONLINE_PATH), true);
         $download = false;
 
 
@@ -44,7 +44,9 @@ class LanguageManager {
         if($download) {
             $startTime = microtime(true);
             self::downloadTranslations($dataFolder, $latestLanguageData);
+            self::loadLanguageData($dataFolder);
             OpenAPI::getInstance()->getLogger()->info("§aSuccessfully downloaded " . (string)count(self::$languageData) . " languages in " . (string)round(microtime(true)-$startTime, 2) . " seconds!");
+            return;
         }
 
         self::loadLanguageData($dataFolder);
@@ -56,7 +58,7 @@ class LanguageManager {
      */
     private static function downloadTranslations(string $localDataFolder, array $latestLanguageData) {
         foreach ($latestLanguageData["languages"] as $langIndex => ["name" => $languageName, "data" => $languageOnlinePath]) {
-            file_put_contents($localDataFolder . "languages/" . basename($languageOnlinePath), self::readLink($languageOnlinePath));
+            file_put_contents($localDataFolder . "languages/" . basename($languageOnlinePath), Utils::readURL($languageOnlinePath));
         }
 
         file_put_contents($localDataFolder . self::LANGUAGE_VERSION_DATA_LOCAL_PATH, json_encode($latestLanguageData, JSON_PRETTY_PRINT));
@@ -67,22 +69,7 @@ class LanguageManager {
      */
     private static function loadLanguageData(string $localDataFolder) {
         foreach (glob($localDataFolder . "languages/*.yml") as $languageFile) {
-            self::$languageData[basename($languageFile, ".yml")] = (array)yaml_parse_file($localDataFolder);
-        }
-    }
-
-    /**
-     * @param string $link
-     * @return string
-     */
-    private static function readLink(string $link): string {
-        try {
-            return file_get_contents($link, false, stream_context_create(["ssl" => ["verify_peer" => false, "verify_peer_name" => false]]));
-        }
-        catch (Exception $exception) {
-            OpenAPI::getInstance()->getLogger()->error("Could not read link $link ({$exception->getMessage()}). Trying again in 1 second.");
-            sleep(1);
-            return self::readLink($link);
+            self::$languageData[basename($languageFile, ".yml")] = (array)yaml_parse_file($languageFile);
         }
     }
 
