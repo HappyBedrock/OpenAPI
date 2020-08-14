@@ -30,7 +30,7 @@ class ScoreboardBuilder {
     public static function sendScoreBoard(Player $player, string $text) {
         $text = self::formatLines($text);
         $text = self::removeDuplicateLines($text);
-        
+
         $splitText = explode("\n", $text);
         $title = array_shift($splitText);
 
@@ -48,7 +48,7 @@ class ScoreboardBuilder {
             return;
         }
 
-        self::updateLines($player, $splitText);
+        self::updateLines($player, self::$scoreBoards[$player->getName()], $splitText);
         self::$scoreBoards[$player->getName()] = $splitText;
     }
 
@@ -88,14 +88,20 @@ class ScoreboardBuilder {
      *
      * @param Player $player
      * @param array $splitText
+     * @param int[]|null $filter
      */
-    private static function sendLines(Player $player, array $splitText) {
+    private static function sendLines(Player $player, array $splitText, ?array $filter = null) {
+        if(is_array($filter)) {
+            $splitText = array_filter($splitText, function ($key) use ($filter) {
+                return in_array($key, $filter);
+            }, ARRAY_FILTER_USE_KEY);
+        }
+
         $entries = [];
         foreach ($splitText as $i => $line) {
             $entry = new ScorePacketEntry();
             $entry->objectiveName = strtolower($player->getName());
-            $entry->scoreboardId = $i + 1;
-            $entry->score = $i + 1; // Lmao it works :,D
+            $entry->scoreboardId = $entry->score = $i + 1; // Lmao it works :,D
             $entry->type = ScorePacketEntry::TYPE_FAKE_PLAYER;
             $entry->customName = $line;
 
@@ -110,19 +116,75 @@ class ScoreboardBuilder {
     }
 
     /**
-     * Updates scoreboard
+     * Updates scoreboard lines
      *
      * @param Player $player
+     * @param array $oldSplitText
      * @param array $splitText
      */
-    private static function updateLines(Player $player, array $splitText) {
-        // Removing old lines
+    private static function updateLines(Player $player, array $oldSplitText, array $splitText) {
+        if(count($oldSplitText) == count($splitText)) {
+            $updateList = [];
+
+            foreach ($splitText as $i => $line) {
+                if($oldSplitText[$i] != $line) {
+                    $updateList[] = $i;
+                }
+            }
+
+            self::removeLines($player, $updateList);
+            self::sendLines($player, $splitText, $updateList);
+            return;
+        }
+
+        if(count($oldSplitText) > count($splitText)) {
+            $updateList = [];
+
+            foreach ($oldSplitText as $i => $line) {
+                if(!isset($splitText[$i])) {
+                    $updateList[] = $i;
+                    continue;
+                }
+
+                if($splitText[$i] != $line) {
+                    $updateList[] = $i;
+                }
+            }
+
+            self::removeLines($player, $updateList);
+            self::sendLines($player, $updateList);
+            return;
+        }
+
+        $toRemove = [];
+        $toSend = [];
+        foreach($splitText as $i => $line) {
+            if(!isset($oldSplitText[$i])) {
+                $toSend[] = $i;
+                continue;
+            }
+
+            if($oldSplitText[$i] != $line) {
+                $toRemove[] = $i;
+                $toSend[] = $i;
+                continue;
+            }
+        }
+
+        self::removeLines($player, $toRemove);
+        self::sendLines($player, $splitText, $toSend);
+    }
+
+    /**
+     * @param Player $player
+     * @param int[] $lines
+     */
+    private static function removeLines(Player $player, array $lines) {
         $entries = [];
-        for($i = 0; $i < 15; $i++) {
+        foreach ($lines as $line) {
             $entry = new ScorePacketEntry();
             $entry->objectiveName = strtolower($player->getName());
-            $entry->scoreboardId = $i + 1;
-            $entry->score = $i + 1;
+            $entry->scoreboardId = $entry->score = $line + 1;
 
             $entries[] = $entry;
         }
@@ -132,8 +194,6 @@ class ScoreboardBuilder {
         $pk->entries = $entries;
 
         $player->dataPacket($pk);
-
-        self::sendLines($player, $splitText);
     }
 
 
@@ -176,7 +236,7 @@ class ScoreboardBuilder {
                 continue;
             }
 
-            $lines[$i] = " " . $line;
+            $lines[$i] = " " . $line . " ";
         }
 
         return implode("\n", $lines);
