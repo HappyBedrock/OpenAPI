@@ -49,7 +49,7 @@ class RankDatabase {
      * @param bool $saveToDatabase
      */
     public static function savePlayerRank(Player $player, string $rank, bool $saveToDatabase = false) {
-        /** @var Rank $rankClass */
+        /** @var Rank|null $rankClass */
         $rankClass = self::$ranks[strtolower($rank)] ?? null;
         if($rankClass === null) {
             $player->kick("Invalid rank ($rank)");

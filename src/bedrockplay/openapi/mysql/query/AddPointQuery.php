@@ -37,6 +37,6 @@ class AddPointQuery extends AsyncQuery {
      * @param mysqli $mysqli
      */
     public function query(mysqli $mysqli): void {
-        $mysqli->mysqli("UPDATE " . DatabaseData::TABLE_PREFIX . "_{$this->table} SET {$this->column}={$this->column}+1 WHERE Name='{$this->player}';");
+        $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "_{$this->table} SET {$this->column}={$this->column}+1 WHERE Name='{$this->player}';");
     }
 }
