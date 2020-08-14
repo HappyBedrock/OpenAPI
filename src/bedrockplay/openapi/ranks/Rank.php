@@ -68,7 +68,7 @@ class Rank {
      * @return string
      */
     public function getFormatForChat(): string {
-        return $this->isVisible ? $this->getChatFormatting() . strtoupper($this->getName()) . " " : "";
+        return $this->isVisible ? $this->getChatFormatting() . strtoupper($this->getName()) . "§r " : "";
     }
 
     /**
@@ -86,6 +86,6 @@ class Rank {
      * @return string
      */
     public function getFormatForNameTag(): string {
-        return $this->isVisible ? $this->getChatFormatting() . strtoupper($this->getName()) . " " : "";
+        return $this->isVisible ? $this->getChatFormatting() . strtoupper($this->getName()) . "§r " : "";
     }
 }

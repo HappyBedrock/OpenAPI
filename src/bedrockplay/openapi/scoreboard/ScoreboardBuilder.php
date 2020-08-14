@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi\scoreboard;
 
-use pocketmine\entity\Entity;
 use pocketmine\network\mcpe\protocol\RemoveObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetDisplayObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetScorePacket;
@@ -17,94 +16,169 @@ use pocketmine\Player;
  */
 class ScoreboardBuilder {
 
-    /** @var int $line */
-    private static $eid;
-
-    /** @var string[] $boards */
-    private static $boards = [];
+    /** @var array $scoreBoards */
+    private static $scoreBoards = [];
+    /** @var array $titles */
+    private static $titles = [];
 
     /**
+     * Sends text as a scoreboard to the player
+     *
+     * @param Player $player
+     * @param string $text
+     */
+    public static function sendScoreBoard(Player $player, string $text) {
+        $text = self::formatLines($text);
+        $text = self::removeDuplicateLines($text);
+        
+        $splitText = explode("\n", $text);
+        $title = array_shift($splitText);
+
+        if(!isset(self::$titles[$player->getName()]) || self::$titles[$player->getName()] !== $title) {
+            if(isset(self::$titles[$player->getName()])) {
+                self::removeScoreBoard($player);
+            }
+
+            self::createScoreBoard($player, self::$titles[$player->getName()] = $title);
+        }
+
+        if(!isset(self::$scoreBoards[$player->getName()])) {
+            self::sendLines($player, $splitText);
+            self::$scoreBoards[$player->getName()] = $splitText;
+            return;
+        }
+
+        self::updateLines($player, $splitText);
+        self::$scoreBoards[$player->getName()] = $splitText;
+    }
+
+    /**
+     * Removes scoreboard from player
+     *
      * @param Player $player
      */
-    public static function removeBoard(Player $player) {
+    public static function removeScoreBoard(Player $player) {
         $pk = new RemoveObjectivePacket();
-        $pk->objectiveName = $player->getName();
+        $pk->objectiveName = strtolower($player->getName());
+
         $player->dataPacket($pk);
 
-        unset(self::$boards[$player->getName()]);
+        unset(self::$titles[$player->getName()]);
     }
 
     /**
+     * Creates objective which can display lines
+     *
      * @param Player $player
-     * @param string $text
-     */
-    public static function sendBoard(Player $player, string $text) {
-        if(isset(self::$boards[$player->getName()]) && self::$boards[$player->getName()] == $text) return;
-
-        if(isset(self::$boards[$player->getName()])) {
-            self::removeBoard($player);
-        }
-
-        $lines = explode("\n", $text);
-        $title = array_shift($lines);
-        foreach (self::buildBoard($player->getName(), $title, implode("\n", $lines)) as $packet) {
-            $player->dataPacket($packet);
-        }
-
-        self::$boards[$player->getName()] = $text;
-    }
-
-    /**
-     * @param string $id
      * @param string $title
-     * @param string $text
-     * @return array
      */
-    public static function buildBoard(string $id, string $title, string $text) {
+    private static function createScoreBoard(Player $player, string $title) {
         $pk = new SetDisplayObjectivePacket();
-        $pk->objectiveName = $id;
+        $pk->objectiveName = strtolower($player->getName());
         $pk->displayName = $title;
-        $pk->sortOrder = 0;
+        $pk->sortOrder = 0; // Ascending
         $pk->criteriaName = "dummy";
         $pk->displaySlot = "sidebar";
 
-        $packets[] = clone $pk;
-        self::$eid = Entity::$entityCount++;
-
-        $pk = new SetScorePacket();
-        $pk->type = $pk::TYPE_CHANGE;
-        $pk->entries = self::buildLines($id, $text);
-        $packets[] = clone $pk;
-        return $packets;
+        $player->dataPacket($pk);
     }
 
     /**
-     * @param string $id
-     * @param string $text
-     * @return ScorePacketEntry[] $lines
+     * Displays lines
+     *
+     * @param Player $player
+     * @param array $splitText
      */
-    private static function buildLines(string $id, string $text): array {
-        $texts = explode("\n", $text);
-        $lines = [];
-        $fixDuplicates = [];
-        foreach ($texts as $line) {
+    private static function sendLines(Player $player, array $splitText) {
+        $entries = [];
+        foreach ($splitText as $i => $line) {
             $entry = new ScorePacketEntry();
-            $entry->score = count($lines);
-            $entry->scoreboardId = count($lines);
-            $entry->objectiveName = $id;
-            $entry->entityUniqueId = self::$eid;
+            $entry->objectiveName = strtolower($player->getName());
+            $entry->scoreboardId = $i + 1;
+            $entry->score = $i + 1; // Lmao it works :,D
             $entry->type = ScorePacketEntry::TYPE_FAKE_PLAYER;
+            $entry->customName = $line;
 
-            $text = " " . $line . str_repeat(" ", 2); // it seems better;
-            fixDuplicate:
-            if(in_array($text, $fixDuplicates)) {
-                $text .= " ";
-                goto fixDuplicate;
-            }
-            $fixDuplicates[] = $text;
-            $entry->customName = $text;
-            $lines[] = $entry;
+            $entries[] = $entry;
         }
-        return $lines;
+
+        $pk = new SetScorePacket();
+        $pk->type = SetScorePacket::TYPE_CHANGE;
+        $pk->entries = $entries;
+
+        $player->dataPacket($pk);
+    }
+
+    /**
+     * Updates scoreboard
+     *
+     * @param Player $player
+     * @param array $splitText
+     */
+    private static function updateLines(Player $player, array $splitText) {
+        // Removing old lines
+        $entries = [];
+        for($i = 0; $i < 15; $i++) {
+            $entry = new ScorePacketEntry();
+            $entry->objectiveName = strtolower($player->getName());
+            $entry->scoreboardId = $i + 1;
+            $entry->score = $i + 1;
+
+            $entries[] = $entry;
+        }
+
+        $pk = new SetScorePacket();
+        $pk->type = SetScorePacket::TYPE_REMOVE;
+        $pk->entries = $entries;
+
+        $player->dataPacket($pk);
+
+        self::sendLines($player, $splitText);
+    }
+
+
+    /**
+     * Client removes duplicate lines, so we must add edit them to be different
+     *
+     * @param string $text
+     * @return string
+     */
+    private static function removeDuplicateLines(string $text): string {
+        $lines = explode("\n", $text);
+
+        $used = [];
+        foreach ($lines as $i => $line) {
+            if($i === 0) {
+                continue; // Title
+            }
+
+            while (in_array($line, $used)) {
+                $line .= " ";
+            }
+
+            $lines[$i] = $line;
+            $used[] = $line;
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Adds " " to begin of every line
+     *
+     * @param string $text
+     * @return string
+     */
+    private static function formatLines(string $text): string {
+        $lines = explode("\n", $text);
+        foreach ($lines as $i => $line) {
+            if($i === 0) {
+                continue;
+            }
+
+            $lines[$i] = " " . $line;
+        }
+
+        return implode("\n", $lines);
     }
 }
