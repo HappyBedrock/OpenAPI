@@ -58,6 +58,13 @@ class ScoreboardBuilder {
      * @param Player $player
      */
     public static function removeScoreBoard(Player $player) {
+        if(!isset(self::$titles[$player->getName()])) {
+            return;
+        }
+        if(isset(self::$scoreBoards[$player->getName()])) {
+            unset(self::$scoreBoards[$player->getName()]);
+        }
+
         $pk = new RemoveObjectivePacket();
         $pk->objectiveName = strtolower($player->getName());
 

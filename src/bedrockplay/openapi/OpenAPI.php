@@ -12,11 +12,13 @@ use bedrockplay\openapi\mysql\query\FetchTableQuery;
 use bedrockplay\openapi\mysql\query\LazyRegisterQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\ranks\RankDatabase;
+use bedrockplay\openapi\scoreboard\ScoreboardBuilder;
 use bedrockplay\openapi\servers\ServerManager;
 use bedrockplay\openapi\utils\Utils;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerLoginEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\UpdateNotifyEvent;
 use pocketmine\network\mcpe\RakLibInterface;
 use pocketmine\plugin\PluginBase;
@@ -102,6 +104,13 @@ class OpenAPI extends PluginBase implements Listener {
         if(!$player->namedtag->hasTag("Rank")) {
             $player->namedtag->setString("Rank", "Guest");
         }
+    }
+
+    /**
+     * @param PlayerQuitEvent $event
+     */
+    public function onQuit(PlayerQuitEvent $event) {
+        ScoreboardBuilder::removeScoreBoard($event->getPlayer());
     }
 
     /**
