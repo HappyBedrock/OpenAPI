@@ -32,7 +32,7 @@ class ServerManager {
     public static function init() {
         /** @var string $currentServerName */
         $currentServerName = OpenAPI::getInstance()->getConfig()->get("current-server-name");
-        self::updateServerData($currentServerName, $currentServerPort = \pocketmine\Server::getInstance()->getConfigInt("server-port"));
+        self::updateServerData($currentServerName, "null", $currentServerPort = \pocketmine\Server::getInstance()->getConfigInt("server-port"));
         QueryQueue::submitQuery(new LazyRegisterServerQuery($currentServerName, $currentServerPort));
 
         self::$currentServer = self::getServer($currentServerName);
