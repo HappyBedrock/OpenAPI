@@ -23,6 +23,9 @@ class ServerManager {
 
     /** @var Server[] $servers */
     private static $servers = [];
+    /** @var ServerGroup[] $serverGroups */
+    private static $serverGroups = [];
+
     /** @var Server $currentServer */
     private static $currentServer;
 
@@ -43,6 +46,7 @@ class ServerManager {
 
                     ServerManager::updateServerData(
                         $row["ServerName"],
+                        $row["ServerAlias"],
                         (int)$row["ServerPort"],
                         (int)$row["OnlinePlayers"],
                         $row["IsOnline"] == "1",
@@ -60,19 +64,33 @@ class ServerManager {
 
     /**
      * @param string $serverName
+     * @param string $serverAlias
      * @param int $serverPort
      * @param int $onlinePlayers
      * @param bool $isOnline
      * @param bool $isWhitelisted
      */
-    public static function updateServerData(string $serverName, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
+    public static function updateServerData(string $serverName, string $serverAlias, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
         if(!isset(self::$servers[$serverName])) {
-            self::$servers[$serverName] = new Server($serverName, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+            self::$servers[$serverName] = $server = new Server($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
             OpenAPI::getInstance()->getLogger()->info("§aRegistered new server ($serverName)");
+
+            $isAdded = false;
+            foreach (self::$serverGroups as $group) {;
+                if($isAdded = $group->canAddServer($server)) {
+                    $group->addServer($server);
+                    break;
+                }
+            }
+
+            if(!$isAdded) {
+                self::$serverGroups[] = $group = new ServerGroup(substr($serverName, 0, strpos($serverName , "-")));
+                $group->addServer($server);
+            }
             return;
         }
 
-        self::$servers[$serverName]->update($serverName, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+        self::$servers[$serverName]->update($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
     }
 
     /**
@@ -81,6 +99,13 @@ class ServerManager {
      */
     public static function getServer(string $name): ?Server {
         return self::$servers[$name] ?? null;
+    }
+
+    /**
+     * @return ServerGroup[]
+     */
+    public static function getServerGroups(): array {
+        return self::$serverGroups;
     }
 
     /**

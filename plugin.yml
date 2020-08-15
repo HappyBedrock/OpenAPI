@@ -24,14 +24,18 @@ permissions:
             default: op
             description: Permissions for Builders
             children:
-              bedrockplay.bedrock:
+              bedrockplay.youtube:
                 default: op
-                description: Permissions for people with BEDROCK or YOUTUBE rank
+                description: Permissions for people with YOUTUBE rank
                 children:
-                  bedrockplay.mvp:
+                  bedrockplay.bedrock:
                     default: op
-                    description: Permissions for people with MVP rank
+                    description: Permissions for people with BEDROCK rank
                     children:
-                      bedrockplay.vip:
+                      bedrockplay.mvp:
                         default: op
-                        description: Permissions for people with VIP
+                        description: Permissions for people with MVP rank
+                        children:
+                          bedrockplay.vip:
+                            default: op
+                            description: Permissions for people with VIP

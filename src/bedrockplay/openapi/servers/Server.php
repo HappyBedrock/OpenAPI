@@ -16,6 +16,9 @@ class Server {
 
     /** @var string $serverName */
     public $serverName;
+    /** @var string $serverAlias */
+    public $serverAlias;
+
     /** @var int $serverPort */
     public $serverPort;
     /** @var int $onlinePlayers */
@@ -29,24 +32,27 @@ class Server {
      * Server constructor.
      *
      * @param string $serverName
+     * @param string $serverAlias
      * @param int $serverPort
      * @param int $onlinePlayers
      * @param bool $isOnline
      * @param bool $isWhitelisted
      */
-    public function __construct(string $serverName, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
-        $this->update($serverName, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+    public function __construct(string $serverName, string $serverAlias, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
+        $this->update($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
     }
 
     /**
      * @param string $serverName
+     * @param string $serverAlias
      * @param int $serverPort
      * @param int $onlinePlayers
      * @param bool $isOnline
      * @param bool $isWhitelisted
      */
-    public function update(string $serverName, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
+    public function update(string $serverName, string $serverAlias, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
         $this->serverName = $serverName;
+        $this->serverAlias = $serverAlias;
         $this->serverPort = $serverPort;
         $this->onlinePlayers = $onlinePlayers;
         $this->isOnline = $isOnline;

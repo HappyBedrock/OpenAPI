@@ -33,6 +33,8 @@ trait PlayerUtils {
             $player->setFlying(false);
             $player->setAllowFlight(false);
         }
+
+        $player->extinguish();
     }
 
     /**
