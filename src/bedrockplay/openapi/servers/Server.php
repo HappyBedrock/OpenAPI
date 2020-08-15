@@ -67,6 +67,13 @@ class Server {
     }
 
     /**
+     * @return string
+     */
+    public function getServerAlias(): string {
+        return $this->serverAlias;
+    }
+
+    /**
      * @return int
      */
     public function getServerPort(): int {
