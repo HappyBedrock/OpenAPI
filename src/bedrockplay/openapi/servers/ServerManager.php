@@ -75,22 +75,44 @@ class ServerManager {
             self::$servers[$serverName] = $server = new Server($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
             OpenAPI::getInstance()->getLogger()->info("§aRegistered new server ($serverName)");
 
-            $isAdded = false;
-            foreach (self::$serverGroups as $group) {;
-                if($isAdded = $group->canAddServer($server)) {
-                    $group->addServer($server);
-                    break;
-                }
+            $groupName = substr($serverName, 0, strpos($serverName , "-"));
+            $targetGroup = self::getServerGroup($groupName);
+
+            if(is_null($targetGroup)) {
+                self::$serverGroups[$groupName] = $group = new ServerGroup($groupName);
+                $group->addServer($server);
+                return;
             }
 
-            if(!$isAdded) {
-                self::$serverGroups[] = $group = new ServerGroup(substr($serverName, 0, strpos($serverName , "-")));
-                $group->addServer($server);
-            }
+            $targetGroup->addServer($server);
             return;
         }
 
         self::$servers[$serverName]->update($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+    }
+
+    /**
+     * @return int
+     */
+    public static function getOnlinePlayers(): int {
+        $online = count(\pocketmine\Server::getInstance()->getOnlinePlayers());
+        foreach (self::$servers as $server) {
+            if($server->getServerName() == self::getCurrentServer()->getServerName()) {
+                continue;
+            }
+
+            $online += $server->getOnlinePlayers();
+        }
+
+        return $online;
+    }
+
+    /**
+     * @param string $name
+     * @return ServerGroup|null
+     */
+    public static function getServerGroup(string $name): ?ServerGroup {
+        return self::$serverGroups[$name] ?? null;
     }
 
     /**

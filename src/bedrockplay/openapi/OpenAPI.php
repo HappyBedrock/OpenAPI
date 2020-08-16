@@ -45,10 +45,6 @@ class OpenAPI extends PluginBase implements Listener {
             $this->getConfig()->get("mysql-password")
         );
 
-        RankDatabase::init();
-        ServerManager::init();
-        LanguageManager::init();
-
         $logger = $this->getLogger();
         QueryQueue::submitQuery(new ConnectQuery(), function (ConnectQuery $query) use ($logger) {
             if($query->connected) {
@@ -59,6 +55,10 @@ class OpenAPI extends PluginBase implements Listener {
             $password = str_repeat("*", strlen($query->password)); // Logger shouldn't store login credentials
             $logger->error("An error occurred whilst connecting to MySQL database (host={$query->host};user={$query->user};password={$password})!");
         });
+
+        RankDatabase::init();
+        ServerManager::init();
+        LanguageManager::init();
 
         if(
             !$this->getServer()->getConfigBool("xbox-auth") &&

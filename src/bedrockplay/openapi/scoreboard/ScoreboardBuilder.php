@@ -16,6 +16,8 @@ use pocketmine\Player;
  */
 class ScoreboardBuilder {
 
+    /** @var array $displayedTexts */
+    private static $displayedTexts = [];
     /** @var array $scoreBoards */
     private static $scoreBoards = [];
     /** @var array $titles */
@@ -28,6 +30,8 @@ class ScoreboardBuilder {
      * @param string $text
      */
     public static function sendScoreBoard(Player $player, string $text) {
+        self::$displayedTexts[$player->getName()] = $text;
+
         $text = self::formatLines($text);
         $text = self::removeDuplicateLines($text);
 
@@ -64,6 +68,9 @@ class ScoreboardBuilder {
         if(isset(self::$scoreBoards[$player->getName()])) {
             unset(self::$scoreBoards[$player->getName()]);
         }
+        if(isset(self::$displayedTexts[$player->getName()])) {
+            unset(self::$displayedTexts[$player->getName()]);
+        }
 
         $pk = new RemoveObjectivePacket();
         $pk->objectiveName = strtolower($player->getName());
@@ -71,6 +78,26 @@ class ScoreboardBuilder {
         $player->dataPacket($pk);
 
         unset(self::$titles[$player->getName()]);
+    }
+
+    /**
+     * Returns if player has sent SetDisplayObjectivePacket
+     *
+     * @param Player $player
+     * @return bool
+     */
+    public static function hasObjectiveDisplayed(Player $player): bool {
+        return isset(self::$titles[$player->getName()]);
+    }
+
+    /**
+     * Returns displayed text
+     *
+     * @param Player $player
+     * @return string
+     */
+    public static function getDisplayedText(Player $player): string {
+        return self::$displayedTexts[$player->getName()] ?? "";
     }
 
     /**
