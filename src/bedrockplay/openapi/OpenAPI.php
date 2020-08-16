@@ -11,6 +11,7 @@ use bedrockplay\openapi\mysql\query\FetchRowQuery;
 use bedrockplay\openapi\mysql\query\FetchTableQuery;
 use bedrockplay\openapi\mysql\query\LazyRegisterQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
+use bedrockplay\openapi\mysql\TableCache;
 use bedrockplay\openapi\ranks\RankDatabase;
 use bedrockplay\openapi\scoreboard\ScoreboardBuilder;
 use bedrockplay\openapi\servers\ServerManager;
@@ -104,6 +105,8 @@ class OpenAPI extends PluginBase implements Listener {
         if(!$player->namedtag->hasTag("Rank")) {
             $player->namedtag->setString("Rank", "Guest");
         }
+
+        TableCache::handleJoin($player);
     }
 
     /**
@@ -111,6 +114,7 @@ class OpenAPI extends PluginBase implements Listener {
      */
     public function onQuit(PlayerQuitEvent $event) {
         ScoreboardBuilder::removeScoreBoard($event->getPlayer());
+        TableCache::handleQuit($event->getPlayer());
     }
 
     /**

@@ -39,7 +39,7 @@ class CustomForm extends Form {
      * @param bool|null $default
      */
     public function addToggle(string $text, ?bool $default = null) {
-        if($default!== null) {
+        if($default !== null) {
             $this->data["content"][] = ["type" => "toggle", "text" => $text, "default" => $default];
             return;
         }
@@ -49,8 +49,13 @@ class CustomForm extends Form {
     /**
      * @param string $text
      * @param array $options
+     * @param int|null $default
      */
-    public function addDropdown(string $text, array $options) {
+    public function addDropdown(string $text, array $options, ?int $default = null) {
+        if($default !== null) {
+            $this->data["content"][] = ["type" => "dropdown", "text" => $text, "options" => $options, "default" => $default];
+            return;
+        }
         $this->data["content"][] = ["type" => "dropdown", "text" => $text, "options" => $options];
     }
 }

@@ -21,12 +21,14 @@ class LanguageManager {
     private const LANGUAGE_VERSION_DATA_LOCAL_PATH = "languages/version.json";
     private const LANGUAGE_VERSION_DATA_ONLINE_PATH = "https://raw.githubusercontent.com/BedrockPlay/Translations/master/version.json";
 
+    /** @var array $versionData */
+    private static $versionData = [];
     /** @var array $languageData*/
     private static $languageData = [];
 
     public static function init() {
         $dataFolder = OpenAPI::getInstance()->getDataFolder();
-        $latestLanguageData = json_decode(Utils::readURL(self::LANGUAGE_VERSION_DATA_ONLINE_PATH), true);
+        self::$versionData = $latestLanguageData = json_decode(Utils::readURL(self::LANGUAGE_VERSION_DATA_ONLINE_PATH), true);
         $download = false;
 
 
@@ -106,5 +108,12 @@ class LanguageManager {
         }
 
         return self::$languageData[$player->namedtag->getString("Language")];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getAvailableLanguages(): array {
+        return array_map(function ($value) { return $value["name"]; }, self::$versionData["languages"]);
     }
 }
