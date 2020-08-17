@@ -8,19 +8,22 @@ use bedrockplay\openapi\lang\LanguageManager;
 use bedrockplay\openapi\mysql\DatabaseData;
 use bedrockplay\openapi\mysql\query\ConnectQuery;
 use bedrockplay\openapi\mysql\query\FetchRowQuery;
-use bedrockplay\openapi\mysql\query\FetchTableQuery;
 use bedrockplay\openapi\mysql\query\LazyRegisterQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\mysql\TableCache;
 use bedrockplay\openapi\ranks\RankDatabase;
 use bedrockplay\openapi\scoreboard\ScoreboardBuilder;
 use bedrockplay\openapi\servers\ServerManager;
+use bedrockplay\openapi\utils\DeviceData;
 use bedrockplay\openapi\utils\Utils;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\UpdateNotifyEvent;
+use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\network\mcpe\RakLibInterface;
 use pocketmine\plugin\PluginBase;
 
@@ -76,9 +79,18 @@ class OpenAPI extends PluginBase implements Listener {
         }
     }
 
-
     public function onDisable() {
         ServerManager::save();
+    }
+
+    /**
+     * @param DataPacketReceiveEvent $event
+     */
+    public function onPacketReceive(DataPacketReceiveEvent $event) {
+        $packet = $event->getPacket();
+        if($packet instanceof LoginPacket) {
+            DeviceData::saveDevice($packet->username, $packet->clientData["DeviceOS"]);
+        }
     }
 
     /**

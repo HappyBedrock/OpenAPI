@@ -35,7 +35,7 @@ class LazyRegisterServerQuery extends AsyncQuery {
     public function query(mysqli $mysqli): void {
         $result = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_Servers WHERE ServerName='{$this->serverName}';");
         if($result->num_rows === 0) {
-            $mysqli->query("INSERT INTO " . DatabaseData::TABLE_PREFIX . "_Servers (ServerName, ServerPort, IsOnline) VALUES ('{$this->serverName}', '{$this->serverPort}', '1');");
+            $mysqli->query("INSERT INTO " . DatabaseData::TABLE_PREFIX . "_Servers (ServerName, ServerAlias, ServerPort, IsOnline) VALUES ('{$this->serverName}', '{$this->serverName}', '{$this->serverPort}', '1');");
             return;
         }
 

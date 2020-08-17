@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi\servers;
 
-use bedrockplay\openapi\lang\Translator;
 use pocketmine\network\mcpe\protocol\ScriptCustomEventPacket;
 use pocketmine\Player;
 use pocketmine\utils\Binary;

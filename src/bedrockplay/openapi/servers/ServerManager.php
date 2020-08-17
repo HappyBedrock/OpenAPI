@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace bedrockplay\openapi\servers;
 
 use bedrockplay\openapi\mysql\DatabaseData;
-use bedrockplay\openapi\mysql\query\FetchTableQuery;
 use bedrockplay\openapi\mysql\query\LazyRegisterServerQuery;
+use bedrockplay\openapi\mysql\query\ServerSyncQuery;
 use bedrockplay\openapi\mysql\query\UpdateRowQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\OpenAPI;
@@ -38,8 +38,8 @@ class ServerManager {
         self::$currentServer = self::getServer($currentServerName);
 
         OpenAPI::getInstance()->getScheduler()->scheduleRepeatingTask(new ClosureTask(function (int $currentTick): void {
-            QueryQueue::submitQuery(new FetchTableQuery("Servers"), function (FetchTableQuery $query) {
-                foreach ($query->rows as $row) {
+            QueryQueue::submitQuery(new ServerSyncQuery(self::getCurrentServer()->getServerName(), count(\pocketmine\Server::getInstance()->getOnlinePlayers())), function (ServerSyncQuery $query) {
+                foreach ($query->table as $row) {
                     if(ServerManager::getCurrentServer()->getServerName() === $row["ServerName"]) {
                         continue;
                     }
@@ -58,7 +58,7 @@ class ServerManager {
     }
 
     public static function save() {
-        $query = new UpdateRowQuery(["IsOnline" => 0], "ServerName", self::getCurrentServer()->getServerName(), "Servers");
+        $query = new UpdateRowQuery(["IsOnline" => 0, "OnlinePlayers" => 0], "ServerName", self::getCurrentServer()->getServerName(), "Servers");
         $query->query(new mysqli(DatabaseData::getHost(), DatabaseData::getUser(), DatabaseData::getPassword(), DatabaseData::DATABASE));
     }
 
