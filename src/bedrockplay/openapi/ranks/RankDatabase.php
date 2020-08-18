@@ -15,6 +15,14 @@ use pocketmine\Player;
  */
 class RankDatabase {
 
+    public const UPDATE_NONE = 0;
+    public const UPDATE_GUEST_TO_VIP = 1;
+    public const UPDATE_GUEST_TO_MVP = 2;
+    public const UPDATE_VIP_TO_MVP = 3;
+    public const UPDATE_MVP_TO_BEDROCK = 4;
+    public const UPDATE_BEDROCK_TO_MVP = 5;
+    public const UPDATE_BEDROCK_TO_BEDROCK = 6;
+
     /** @var Rank[] $ranks */
     public static $ranks = [];
 
@@ -67,6 +75,25 @@ class RankDatabase {
         if($saveToDatabase) {
             QueryQueue::submitQuery(new UpdateRowQuery(["Rank" => $rankClass->getName()], "Name", $player->getName()));
         }
+    }
+
+    /**
+     * @param Player $player
+     * @param int $update
+     */
+    public static function saveRankUpdate(Player $player, int $update = self::UPDATE_NONE) {
+        $player->namedtag->setInt("RankUpdate", $update);
+    }
+
+    /**
+     * @param Player $player
+     * @return int
+     */
+    public static function applyRankUpdate(Player $player): int {
+        $update = $player->namedtag->getInt("RankUpdate");
+        $player->namedtag->removeTag("RankUpdate");
+
+        return $update;
     }
 
     /**
