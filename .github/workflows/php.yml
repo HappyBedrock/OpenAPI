@@ -14,9 +14,9 @@ jobs:
     - name: Download devtools script
       run: wget https://raw.githubusercontent.com/pmmp/DevTools/master/src/DevTools/ConsoleScript.php
     - name: Move files to build dir
-      run: mkdir ./build && cp -r ./src/* ./build/src && cp -r ./resources/* ./build/resources* && cp ./plugin.yml ./build/plugin.yml
+      run: mkdir ./build && cp -r ./src/* ./build/src && cp -r ./resources/* ./build/resources && cp ./plugin.yml ./build/plugin.yml
     - name: Generate plugin
-      run: php -dphar.readonly=0 ConsoleScript.php --make build --out OpenAPI.phar
+      run: php -dphar.readonly=0 ConsoleScript.php --make ./build/ --out OpenAPI.phar
     - name: Store artifacts
       uses: actions/upload-artifact@v1
       with:
