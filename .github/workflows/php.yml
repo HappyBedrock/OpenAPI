@@ -1,0 +1,31 @@
+name: PHP
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Download devtools script
+      run: wget https://raw.githubusercontent.com/pmmp/DevTools/master/src/DevTools/ConsoleScript.php
+    - name: Move files to build dir
+      run: mkdir ./build && cp -r ./src/* ./build/src && cp -r ./resources/* ./build/resources* && cp ./plugin.yml ./build/plugin.yml
+    - name: Generate plugin
+      run: php -dphar.readonly=0 path/to/ConsoleScript.php --make build --out OpenAPI.phar
+    - name: Store artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: OpenAPI
+        path: OpenAPI.phar
+      
+
+    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+    # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+    # - name: Run test suite
+    #   run: composer run-script test
