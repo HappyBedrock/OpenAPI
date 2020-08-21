@@ -25,8 +25,11 @@ class LazyRegisterQuery extends AsyncQuery {
     public const UPDATE_BEDROCK_TO_MVP = 5;
     public const UPDATE_BEDROCK_TO_BEDROCK = 6;
 
-    /** @var string $tablesToRegister */
-    public static $tablesToRegister = null;
+    /** @var array $tablesToRegister */
+    public static $tablesToRegister = [];
+
+    /** @var string $tablesToPrepare */
+    public $tablesToPrepare;
 
     /** @var string $player */
     public $player;
@@ -41,6 +44,7 @@ class LazyRegisterQuery extends AsyncQuery {
      * @param string $player
      */
     public function __construct(string $player) {
+        $this->tablesToPrepare = serialize(self::$tablesToRegister);
         $this->player = $player;
     }
 
@@ -49,14 +53,14 @@ class LazyRegisterQuery extends AsyncQuery {
      * @return void
      */
     public function query(mysqli $mysqli): void {
-        $check = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_" . DatabaseData::DEFAULT_TABLE . " WHERE Name='{$this->player}';");
-        if(is_null($row = $check->fetch_assoc())) {
-            foreach (unserialize(self::$tablesToRegister) as $table) {
-                $mysqli->query("INSERT INTO $table (Name) VALUES ({$this->player})");
+        foreach (unserialize($this->tablesToPrepare) as $table) {
+            $check = $mysqli->query("SELECT Name FROM $table WHERE Name='{$this->player}';");
+            if(!$check || $check->num_rows === 0) {
+                $mysqli->query("INSERT INTO {$table} (Name) VALUES ('{$this->player}');");
             }
-
-            $row = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_" . DatabaseData::DEFAULT_TABLE . " WHERE Name='{$this->player}';")->fetch_assoc();
         }
+
+        $row = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_" . DatabaseData::DEFAULT_TABLE . " WHERE Name='{$this->player}';")->fetch_assoc();
 
         /** @var string|null $rankUpdate */
         $rankUpdate = null;
@@ -169,16 +173,7 @@ class LazyRegisterQuery extends AsyncQuery {
      * @param string $table
      */
     public static function addTableToRegister(string $table) {
-        $name = DatabaseData::TABLE_PREFIX . "_" . $table;
-
-        if(self::$tablesToRegister === null) {
-            self::$tablesToRegister = serialize([$name]);
-            return;
-        }
-
-        $tables = unserialize(self::$tablesToRegister);
-        $tables[] = $name;
-        self::$tablesToRegister = serialize($tables);
+        self::$tablesToRegister[] = DatabaseData::TABLE_PREFIX . "_" . $table;
     }
 
     /**

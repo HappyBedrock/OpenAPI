@@ -26,7 +26,9 @@ abstract class AsyncQuery extends AsyncTask {
         try {
             $this->query(new mysqli($this->host, $this->user, $this->password, DatabaseData::DATABASE));
         }
-        catch (Exception $exception) {}
+        catch (Exception $exception) {
+            var_dump($exception->getMessage());
+        }
     }
 
     /**
