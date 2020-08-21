@@ -106,9 +106,9 @@ class RankDatabase {
 
     /**
      * @param string $rank
-     * @return Rank
+     * @return Rank|null
      */
-    public static function getRankByName(string $rank): Rank {
-        return self::$ranks[strtolower($rank)];
+    public static function getRankByName(string $rank): ?Rank {
+        return self::$ranks[strtolower($rank)] ?? null;
     }
 }
