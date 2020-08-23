@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi\utils;
 
+use bedrockplay\openapi\ranks\RankDatabase;
 use pocketmine\Player;
 
 /**
@@ -11,6 +12,14 @@ use pocketmine\Player;
  * @package bedrockplay\openapi\utils
  */
 trait PlayerUtils {
+
+    /**
+     * @param Player $player
+     * @param string $color
+     */
+    public function updateNameTag(Player $player, string $color = "§7") {
+        $player->setNameTag(RankDatabase::getPlayerRank($player)->getFormatForNameTag() . $color . $player->getName() . "\n§5" . DeviceData::getDeviceName($player));
+    }
 
     /**
      * @param Player $player
