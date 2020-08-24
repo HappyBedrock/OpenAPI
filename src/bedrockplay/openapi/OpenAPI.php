@@ -43,6 +43,7 @@ class OpenAPI extends PluginBase implements Listener {
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
 
+        DatabaseData::init();
         DatabaseData::update(
             $this->getConfig()->get("mysql-host"),
             $this->getConfig()->get("mysql-user"),

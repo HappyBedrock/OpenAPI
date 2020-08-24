@@ -7,6 +7,7 @@ namespace bedrockplay\openapi\ranks;
 use bedrockplay\openapi\mysql\query\UpdateRowQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\OpenAPI;
+use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\Player;
 
 /**
@@ -82,6 +83,9 @@ class RankDatabase {
      * @param int $update
      */
     public static function saveRankUpdate(Player $player, int $update = self::UPDATE_NONE) {
+        if($player->namedtag === null) {
+            $player->namedtag = new CompoundTag();
+        }
         $player->namedtag->setInt("RankUpdate", $update);
     }
 
