@@ -56,6 +56,8 @@ class BossBarBuilder {
         }
         unset(self::$bossBars[$player->getName()]);
 
+        self::hideBossBar($player);
+
         $pk = new RemoveActorPacket();
         $pk->entityUniqueId = self::getBossBarEid();
         $player->dataPacket($pk);
@@ -89,6 +91,17 @@ class BossBarBuilder {
         $pk->healthPercent = 1;
         $pk->color = 0;
         $pk->overlay = 0;
+
+        $player->dataPacket($pk);
+    }
+
+    /**
+     * @param Player $player
+     */
+    private static function hideBossBar(Player $player) {
+        $pk = new BossEventPacket();
+        $pk->bossEid = self::getBossBarEid();
+        $pk->eventType = BossEventPacket::TYPE_HIDE;
 
         $player->dataPacket($pk);
     }

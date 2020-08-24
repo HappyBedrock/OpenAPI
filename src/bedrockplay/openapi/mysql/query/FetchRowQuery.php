@@ -45,8 +45,8 @@ class FetchRowQuery extends AsyncQuery {
      */
     public function query(mysqli $mysqli): void {
         $result = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_{$this->table} WHERE {$this->conditionKey}='{$this->conditionValue}'");
-        if($row = $result->fetch_assoc()) {
-            $this->row = serialize($row);
+        if($result->num_rows > 0) {
+            $this->row = serialize($result->fetch_assoc());
             return;
         }
 
@@ -54,7 +54,7 @@ class FetchRowQuery extends AsyncQuery {
     }
 
     public function onCompletion(Server $server) {
-        $this->row = unserialize($this->row);
+        $this->row = (array)unserialize($this->row);
         parent::onCompletion($server);
     }
 }

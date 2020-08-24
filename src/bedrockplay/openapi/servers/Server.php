@@ -117,7 +117,7 @@ class Server {
      */
     public function transferPlayerHere(Player $player) {
         QueryQueue::submitQuery(new CheckBanQuery($player->getName()), function (CheckBanQuery $query) use ($player) {
-            if($query->banned) {
+            if($query->banned && ServerManager::getCurrentServer()->isLobby()) {
                 $admin = $query->banData["Admin"];
                 $until = $this->getTimeName((int)$query->banData["Time"]);
                 $reason = $query->banData["Reason"];

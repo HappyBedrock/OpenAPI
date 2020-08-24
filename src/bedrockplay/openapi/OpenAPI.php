@@ -8,7 +8,6 @@ use bedrockplay\openapi\bossbar\BossBarBuilder;
 use bedrockplay\openapi\lang\LanguageManager;
 use bedrockplay\openapi\mysql\DatabaseData;
 use bedrockplay\openapi\mysql\query\ConnectQuery;
-use bedrockplay\openapi\mysql\query\FetchRowQuery;
 use bedrockplay\openapi\mysql\query\LazyRegisterQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\mysql\TableCache;
@@ -24,7 +23,6 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\UpdateNotifyEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
-use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\network\mcpe\RakLibInterface;
 use pocketmine\plugin\PluginBase;
 
