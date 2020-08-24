@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi;
 
+use bedrockplay\openapi\bossbar\BossBarBuilder;
 use bedrockplay\openapi\lang\LanguageManager;
 use bedrockplay\openapi\mysql\DatabaseData;
 use bedrockplay\openapi\mysql\query\ConnectQuery;
@@ -100,9 +101,9 @@ class OpenAPI extends PluginBase implements Listener {
         $player = $event->getPlayer();
 
         QueryQueue::submitQuery(new LazyRegisterQuery($player->getName()), function (LazyRegisterQuery $query) use ($player) {
-            RankDatabase::savePlayerRank($player, $query->row["Rank"]);
+            RankDatabase::savePlayerRank($player, $query->row["Rank"] ?? "ReadError");
             RankDatabase::saveRankUpdate($player, $query->update);
-            LanguageManager::saveLanguage($player, $query->row["Language"]);
+            LanguageManager::saveLanguage($player, $query->row["Language"] ?? "ReadError");
         });
     }
 
@@ -127,6 +128,7 @@ class OpenAPI extends PluginBase implements Listener {
     public function onQuit(PlayerQuitEvent $event) {
         ScoreboardBuilder::removeScoreBoard($event->getPlayer());
         TableCache::handleQuit($event->getPlayer());
+        BossBarBuilder::removeBossBar($event->getPlayer());
     }
 
     /**

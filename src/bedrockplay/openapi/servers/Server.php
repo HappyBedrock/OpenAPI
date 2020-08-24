@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi\servers;
 
+use bedrockplay\openapi\math\TimeFormatter;
+use bedrockplay\openapi\mysql\query\CheckBanQuery;
+use bedrockplay\openapi\mysql\QueryQueue;
 use pocketmine\network\mcpe\protocol\ScriptCustomEventPacket;
 use pocketmine\Player;
 use pocketmine\utils\Binary;
@@ -13,6 +16,7 @@ use pocketmine\utils\Binary;
  * @package bedrockplay\openapi
  */
 class Server {
+    use TimeFormatter;
 
     /** @var string $serverName */
     public $serverName;
@@ -112,10 +116,22 @@ class Server {
      * @param Player $player
      */
     public function transferPlayerHere(Player $player) {
-        $pk = new ScriptCustomEventPacket();
-        $pk->eventName = "bungeecord:main";
-        $pk->eventData = Binary::writeShort(7) . "Connect" . Binary::writeShort(strlen($this->serverName)) . $this->serverName;
+        QueryQueue::submitQuery(new CheckBanQuery($player->getName()), function (CheckBanQuery $query) use ($player) {
+            if($query->banned) {
+                $admin = $query->banData["Admin"];
+                $until = $this->getTimeName((int)$query->banData["Time"]);
+                $reason = $query->banData["Reason"];
 
-        $player->dataPacket($pk);
+                $player->sendMessage("§9Transfer> §cYou aren't permitted to play on our game servers.");
+                $player->sendMessage("§9Ban> §6You are banned by {$admin} until {$until} for {$reason}.");
+                return;
+            }
+
+            $pk = new ScriptCustomEventPacket();
+            $pk->eventName = "bungeecord:main";
+            $pk->eventData = Binary::writeShort(7) . "Connect" . Binary::writeShort(strlen($this->serverName)) . $this->serverName;
+
+            $player->dataPacket($pk);
+        });
     }
 }
