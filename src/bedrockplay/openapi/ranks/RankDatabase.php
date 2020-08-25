@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi\ranks;
 
+use bedrockplay\openapi\mysql\DatabaseData;
 use bedrockplay\openapi\mysql\query\UpdateRowQuery;
 use bedrockplay\openapi\mysql\QueryQueue;
 use bedrockplay\openapi\OpenAPI;
@@ -98,6 +99,43 @@ class RankDatabase {
         $player->namedtag->removeTag("RankUpdate");
 
         return $update;
+    }
+
+    /**
+     * @param Player $player
+     * @param int $voteTime
+     * @param bool $hasVoted
+     */
+    public static function saveHasVoted(Player $player, int $voteTime, bool $hasVoted = true) {
+        $today = (int)date("dm");
+
+        if($hasVoted && $voteTime != $today) {
+            $hasVoted = false;
+            $today = $voteTime;
+        }
+
+        if(in_array(strtolower(RankDatabase::getPlayerRank($player)->getName()), ["guest", "voter"])) {
+            if($hasVoted) {
+                RankDatabase::savePlayerRank($player, "Voter", true);
+            } else {
+                RankDatabase::savePlayerRank($player, "Guest", true);
+            }
+        }
+
+        if($hasVoted) {
+            $player->addAttachment(OpenAPI::getInstance(), "bedrockplay.voter");
+        }
+
+        $player->namedtag->setByte("HasVoted", (int)$hasVoted);
+        QueryQueue::submitQuery(new UpdateRowQuery(["HasVoted" => $hasVoted, "VoteDate" => $today], "Name", $player->getName()));
+    }
+
+    /**
+     * @param Player $player
+     * @return bool
+     */
+    public static function hasVoted(Player $player): bool {
+        return (bool)$player->namedtag->getByte("HasVoted", 0);
     }
 
     /**

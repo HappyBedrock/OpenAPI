@@ -2,6 +2,9 @@
 # Server settings
 current-server-name: "Lobby-1"
 
+# API key for minecraft server list
+server-list-api-key: ""
+
 # Database connection, for creating table scripts, contact vixik
 mysql-host: ""
 mysql-user: ""
