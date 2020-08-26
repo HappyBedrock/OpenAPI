@@ -67,6 +67,10 @@ class RankDatabase {
             return;
         }
 
+        if($player->namedtag === null) {
+            $player->namedtag = new CompoundTag();
+        }
+
         $player->namedtag->setString("Rank", $rankClass->getName());
 
         $player->recalculatePermissions();
