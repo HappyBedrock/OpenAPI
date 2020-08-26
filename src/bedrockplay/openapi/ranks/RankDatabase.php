@@ -135,6 +135,9 @@ class RankDatabase {
      * @return bool
      */
     public static function hasVoted(Player $player): bool {
+        if($player->namedtag === null) {
+            return false;
+        }
         return (bool)$player->namedtag->getByte("HasVoted", 0);
     }
 
@@ -143,6 +146,9 @@ class RankDatabase {
      * @return Rank
      */
     public static function getPlayerRank(Player $player): Rank {
+        if($player->namedtag = null) {
+            return self::$ranks["guest"];
+        }
         return self::$ranks[strtolower($player->namedtag->getString("Rank"))];
     }
 

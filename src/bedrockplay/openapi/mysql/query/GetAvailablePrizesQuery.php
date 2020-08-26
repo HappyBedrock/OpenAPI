@@ -58,8 +58,8 @@ class GetAvailablePrizesQuery extends AsyncQuery {
      * @param Server $server
      */
     public function onCompletion(Server $server) {
-        $this->particlePrizes = (array)unserialize($this->particlePrizes);
-        $this->gadgetPrizes = (array)unserialize($this->gadgetPrizes);
+        $this->particlePrizes = (array)unserialize((string)$this->particlePrizes);
+        $this->gadgetPrizes = (array)unserialize((string)$this->gadgetPrizes);
         parent::onCompletion($server);
     }
 }

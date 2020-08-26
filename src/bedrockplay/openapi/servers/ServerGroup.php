@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace bedrockplay\openapi\servers;
 
+use pocketmine\Player;
+
 class ServerGroup {
+
+    public const ONLINE_LIMIT = 30;
 
     /** @var string $groupName */
     private $groupName;
@@ -44,6 +48,43 @@ class ServerGroup {
         }
 
         return $online;
+    }
+
+    /**
+     * Returns server which has player count < self::ONLINE_LIMIT is online
+     *
+     * @param Player $player
+     * @return Server|null
+     */
+    public function getFitServer(Player $player): ?Server {
+        $servers = $this->servers;
+        if(isset($servers[ServerManager::getCurrentServer()->getServerName()])) {
+            unset($servers[ServerManager::getCurrentServer()->getServerName()]);
+        }
+
+        $toSort = array_map(function (Server $server) {return $server->getOnlinePlayers();}, $servers);
+        asort($toSort);
+
+        /** @var Server|null $targetServer */
+        $targetServer = null;
+        foreach ($toSort as $name => $onlinePlayers) {
+            if(!$servers[$name]->isOnline() || (!$player->hasPermission("bedrockplay.operator") && $servers[$name]->isWhitelisted())) {
+                continue;
+            }
+
+            if($targetServer === null) {
+                $targetServer = $servers[$name];
+                continue;
+            }
+
+            if($onlinePlayers < self::ONLINE_LIMIT) {
+                $targetServer = $servers[$name];
+            } else {
+                break;
+            }
+        }
+
+        return $targetServer;
     }
 
     /**
