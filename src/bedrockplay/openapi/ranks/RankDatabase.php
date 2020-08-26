@@ -146,7 +146,7 @@ class RankDatabase {
      * @return Rank
      */
     public static function getPlayerRank(Player $player): Rank {
-        if($player->namedtag = null) {
+        if($player->namedtag === null) {
             return self::$ranks["guest"];
         }
         return self::$ranks[strtolower($player->namedtag->getString("Rank"))];
