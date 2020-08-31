@@ -73,7 +73,7 @@ class ServerManager {
     public static function updateServerData(string $serverName, string $serverAlias, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
         if(!isset(self::$servers[$serverName])) {
             self::$servers[$serverName] = $server = new Server($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
-            OpenAPI::getInstance()->getLogger()->info("§aRegistered new server ($serverName)");
+            OpenAPI::getInstance()->getLogger()->info("Registered new server ($serverName)");
 
             $groupName = substr($serverName, 0, strpos($serverName , "-"));
             $targetGroup = self::getServerGroup($groupName);

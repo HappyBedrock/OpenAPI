@@ -116,8 +116,8 @@ class Server {
      * @param Player $player
      */
     public function transferPlayerHere(Player $player) {
-        QueryQueue::submitQuery(new CheckBanQuery($player->getName()), function (CheckBanQuery $query) use ($player) {
-            if($query->banned && ServerManager::getCurrentServer()->isLobby()) {
+        $callback = function (CheckBanQuery $query = null) use ($player) {
+            if($query !== null && $query->banned && ServerManager::getCurrentServer()->isLobby() && !$this->isLobby()) {
                 $admin = $query->banData["Admin"];
                 $until = $this->getTimeName((int)$query->banData["Time"]);
                 $reason = $query->banData["Reason"];
@@ -132,6 +132,13 @@ class Server {
             $pk->eventData = Binary::writeShort(7) . "Connect" . Binary::writeShort(strlen($this->serverName)) . $this->serverName;
 
             $player->dataPacket($pk);
-        });
+        };
+
+        if(ServerManager::getCurrentServer()->isLobby() && !$this->isLobby()) {
+            QueryQueue::submitQuery(new CheckBanQuery($player->getName()), $callback);
+            return;
+        }
+
+        $callback();
     }
 }
