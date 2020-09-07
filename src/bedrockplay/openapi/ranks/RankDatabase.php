@@ -42,7 +42,7 @@ class RankDatabase {
             new Rank("MVP", "§3§l", ["bedrockplay.mvp"]),
             new Rank("VIP", "§3§l", ["bedrockplay.vip"]),
             // Gettable ranks
-            new Rank("YouTube", "§c§l", ["bedrockplay.bedrock"]),
+            new Rank("YouTube", "§c§l", ["bedrockplay.youtube"]),
             new Rank("Voter", "§b§l", ["bedrockplay.voter"]),
             // Guest
             new Rank("Guest", "§b§l", [], false)
