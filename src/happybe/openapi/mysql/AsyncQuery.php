@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+namespace happybe\openapi\mysql;
+
+use Exception;
+use mysqli;
+use pocketmine\scheduler\AsyncTask;
+use pocketmine\Server;
+
+/**
+ * Class AsyncQuery
+ * @package happybe\openapi\mysql
+ */
+abstract class AsyncQuery extends AsyncTask {
+
+    /** @var string $host */
+    public $host;
+    /** @var string $user */
+    public $user;
+    /** @var string $password */
+    public $password;
+
+    final public function onRun() {
+        try {
+            $this->query($mysqli = new mysqli($this->host, $this->user, $this->password, DatabaseData::DATABASE));
+            $mysqli->close();
+        }
+        catch (Exception $exception) {
+            var_dump($exception->getMessage());
+        }
+    }
+
+    /**
+     * @param Server $server
+     */
+    public function onCompletion(Server $server) {
+        parent::onCompletion($server);
+
+        QueryQueue::activateCallback($this);
+    }
+
+    /**
+     * @param mysqli $mysqli
+     */
+    abstract public function query(mysqli $mysqli): void;
+}
