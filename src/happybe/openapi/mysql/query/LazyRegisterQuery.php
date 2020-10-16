@@ -65,18 +65,18 @@ class LazyRegisterQuery extends AsyncQuery {
         /** @var string|null $rankUpdate */
         $rankUpdate = null;
 
-        $expirationQueryResult = $mysqli->query("SELECT * FROM BP_RankExpiration WHERE Name='{$this->player}';");
+        $expirationQueryResult = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "RankExpiration WHERE Name='{$this->player}';");
         if($expirationQueryResult->num_rows > 0) {
             $line = $expirationQueryResult->fetch_assoc();
 
             if(time() < (int)$line["ExpiryTime"]) {
                 $this->update = self::UPDATE_BEDROCK_TO_MVP;
                 $rankUpdate = "MVP";
-                $mysqli->query("DELETE FROM BP_RankExpiration WHERE Name='{$this->player}';");
+                $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankExpiration WHERE Name='{$this->player}';");
             }
         }
 
-        $ranksQueryResult = $mysqli->query("SELECT * FROM BP_RankQueue WHERE Name='{$this->player}';");
+        $ranksQueryResult = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Name='{$this->player}';");
         if($ranksQueryResult->num_rows > 0) {
             while ($line = $ranksQueryResult->fetch_assoc()) {
                 $currentRank = $row["Rank"];
@@ -96,24 +96,24 @@ class LazyRegisterQuery extends AsyncQuery {
 
                 if(strtolower($newRank) == "bedrock") {
                     if(strtolower($minRank) == "bedrock" && strtolower($currentRank) == "bedrock") {
-                        $mysqli->query("DELETE FROM BP_RankQueue WHERE Id='{$line["Id"]}';");
+                        $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Id='{$line["Id"]}';");
                         $this->update = self::UPDATE_BEDROCK_TO_BEDROCK;
 
-                        $mysqli->query("UPDATE BP_RankExpiration SET ExpiryTime=ExpiryTime+" . (string)self::MONTH_IN_SECONDS . " WHERE Name='{$this->player}';");
+                        $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "RankExpiration SET ExpiryTime=ExpiryTime+" . (string)self::MONTH_IN_SECONDS . " WHERE Name='{$this->player}';");
                         break;
                     }
 
                     if(strtolower($newRank) == "bedrock" && strtolower($rankUpdate) == "mvp") {
-                        $mysqli->query("DELETE FROM BP_RankQueue WHERE Id='{$line["Id"]}';");
+                        $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Id='{$line["Id"]}';");
                         $this->update = self::UPDATE_BEDROCK_TO_BEDROCK;
                         $rankUpdate = null;
 
-                        $mysqli->query("INSERT INTO BP_RankExpiration(Name, ExpiryRank, OldRank) VALUES ('{$this->player}', '".self::MONTH_IN_SECONDS."', '{$currentRank}'");
+                        $mysqli->query("INSERT INTO " . DatabaseData::TABLE_PREFIX . "RankExpiration(Name, ExpiryRank, OldRank) VALUES ('{$this->player}', '".self::MONTH_IN_SECONDS."', '{$currentRank}'");
                         break;
                     }
 
                     if(strtolower($newRank) == "bedrock" && strtolower($currentRank) == "mvp") {
-                        $mysqli->query("DELETE FROM BP_RankQueue WHERE Id='{$line["Id"]}';");
+                        $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Id='{$line["Id"]}';");
                         $this->update = self::UPDATE_MVP_TO_BEDROCK;
                         $rankUpdate = "Bedrock";
                         break;
@@ -130,14 +130,14 @@ class LazyRegisterQuery extends AsyncQuery {
                         break;
                     }
 
-                    $mysqli->query("DELETE FROM BP_RankQueue WHERE Id='{$line["Id"]}';");
+                    $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Id='{$line["Id"]}';");
 
                     $rankUpdate = "MVP";
                     break;
                 }
 
                 if(strtolower($newRank) == "vip") {
-                    $mysqli->query("DELETE FROM BP_RankQueue WHERE Id='{$line["Id"]}';");
+                    $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Id='{$line["Id"]}';");
                     $this->update = self::UPDATE_GUEST_TO_VIP;
                     $rankUpdate = "VIP";
                 }
@@ -145,7 +145,7 @@ class LazyRegisterQuery extends AsyncQuery {
         }
 
         if($rankUpdate !== null) {
-            $mysqli->query("UPDATE BP_Values SET Rank='$rankUpdate' WHERE Name='{$this->player}'");
+            $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "Values SET Rank='$rankUpdate' WHERE Name='{$this->player}'");
             $row["Rank"] = $rankUpdate;
         }
 

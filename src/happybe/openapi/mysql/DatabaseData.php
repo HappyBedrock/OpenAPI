@@ -13,7 +13,7 @@ use happybe\openapi\mysql\query\LazyRegisterQuery;
 class DatabaseData {
 
     public const DATABASE = "HappyBE";
-    public const TABLE_PREFIX = "BP";
+    public const TABLE_PREFIX = "HB";
     public const DEFAULT_TABLE = "Values";
 
     /** @var string $host */
