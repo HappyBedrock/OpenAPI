@@ -15,16 +15,6 @@ use pocketmine\Server;
  */
 class LazyRegisterQuery extends AsyncQuery {
 
-    public const MONTH_IN_SECONDS = 60 * 60 * 24 * 30;
-
-    public const UPDATE_NONE = 0;
-    public const UPDATE_GUEST_TO_VIP = 1;
-    public const UPDATE_GUEST_TO_MVP = 2;
-    public const UPDATE_VIP_TO_MVP = 3;
-    public const UPDATE_MVP_TO_BEDROCK = 4;
-    public const UPDATE_BEDROCK_TO_MVP = 5;
-    public const UPDATE_BEDROCK_TO_BEDROCK = 6;
-
     /** @var array $tablesToRegister */
     public static $tablesToRegister = [];
 
@@ -33,8 +23,6 @@ class LazyRegisterQuery extends AsyncQuery {
 
     /** @var string $player */
     public $player;
-    /** @var int $update */
-    public $update = self::UPDATE_NONE;
 
     /** @var string|array $row */
     public $row;
@@ -60,113 +48,7 @@ class LazyRegisterQuery extends AsyncQuery {
             }
         }
 
-        $row = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_" . DatabaseData::DEFAULT_TABLE . " WHERE Name='{$this->player}';")->fetch_assoc();
-
-        /** @var string|null $rankUpdate */
-        $rankUpdate = null;
-
-        $expirationQueryResult = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "RankExpiration WHERE Name='{$this->player}';");
-        if($expirationQueryResult->num_rows > 0) {
-            $line = $expirationQueryResult->fetch_assoc();
-
-            if(time() < (int)$line["ExpiryTime"]) {
-                $this->update = self::UPDATE_BEDROCK_TO_MVP;
-                $rankUpdate = "MVP";
-                $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankExpiration WHERE Name='{$this->player}';");
-            }
-        }
-
-        $ranksQueryResult = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Name='{$this->player}';");
-        if($ranksQueryResult->num_rows > 0) {
-            while ($line = $ranksQueryResult->fetch_assoc()) {
-                $currentRank = $row["Rank"];
-                $minRank = $line["OldRank"];
-                $newRank = $line["Rank"];
-
-                if($this->getRankValue($minRank) > $this->getRankValue($currentRank)) {
-                    echo "Received wrong rank {$newRank} (Player {$this->player} already has that rank). Storing rank for later use.\n";
-                    continue;
-                }
-
-                if($this->getRankValue($newRank) == $this->getRankValue($currentRank) && $this->getRankValue($minRank) <= 2) {
-                    echo "Received wrong rank {$newRank} (Player want increase expiration time of lifetime rank). Storing rank for later use\n";
-                    continue;
-                }
-
-
-                if(strtolower($newRank) == "bedrock") {
-                    if(strtolower($minRank) == "bedrock" && strtolower($currentRank) == "bedrock") {
-                        $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Id='{$line["Id"]}';");
-                        $this->update = self::UPDATE_BEDROCK_TO_BEDROCK;
-
-                        $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "RankExpiration SET ExpiryTime=ExpiryTime+" . (string)self::MONTH_IN_SECONDS . " WHERE Name='{$this->player}';");
-                        break;
-                    }
-
-                    if(strtolower($newRank) == "bedrock" && strtolower($rankUpdate) == "mvp") {
-                        $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Id='{$line["Id"]}';");
-                        $this->update = self::UPDATE_BEDROCK_TO_BEDROCK;
-                        $rankUpdate = null;
-
-                        $mysqli->query("INSERT INTO " . DatabaseData::TABLE_PREFIX . "RankExpiration(Name, ExpiryRank, OldRank) VALUES ('{$this->player}', '".self::MONTH_IN_SECONDS."', '{$currentRank}'");
-                        break;
-                    }
-
-                    if(strtolower($newRank) == "bedrock" && strtolower($currentRank) == "mvp") {
-                        $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Id='{$line["Id"]}';");
-                        $this->update = self::UPDATE_MVP_TO_BEDROCK;
-                        $rankUpdate = "Bedrock";
-                        break;
-                    }
-                }
-
-                if(strtolower($newRank) == "mvp") {
-                    if(strtolower($currentRank) == "vip" && strtolower($minRank) == "vip") {
-                        $this->update = self::UPDATE_VIP_TO_MVP;
-                    } elseif($currentRank != "vip" && strtolower($minRank) != "vip") {
-                        $this->update = self::UPDATE_GUEST_TO_MVP;
-                    } else {
-                        echo "Player is updating from guest to mvp whilst having vip rank.\n";
-                        break;
-                    }
-
-                    $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Id='{$line["Id"]}';");
-
-                    $rankUpdate = "MVP";
-                    break;
-                }
-
-                if(strtolower($newRank) == "vip") {
-                    $mysqli->query("DELETE FROM " . DatabaseData::TABLE_PREFIX . "RankQueue WHERE Id='{$line["Id"]}';");
-                    $this->update = self::UPDATE_GUEST_TO_VIP;
-                    $rankUpdate = "VIP";
-                }
-            }
-        }
-
-        if($rankUpdate !== null) {
-            $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "Values SET Rank='$rankUpdate' WHERE Name='{$this->player}'");
-            $row["Rank"] = $rankUpdate;
-        }
-
-        $this->row = serialize($row);
-    }
-
-    /**
-     * @param string $rank
-     * @return int
-     */
-    public function getRankValue(string $rank): int {
-        switch (strtolower($rank)) {
-            case "bedrock":
-                return 3;
-            case "mvp":
-                return 2;
-            case "vip":
-                return 1;
-        }
-
-        return 0;
+        $this->row = serialize($mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_Values WHERE Name='{$this->player}';")->fetch_assoc());
     }
 
     /**

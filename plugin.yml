@@ -1,6 +1,6 @@
 name: OpenAPI
 author: VixikHD
-main: happype\openapi\OpenAPI
+main: happybe\openapi\OpenAPI
 description: Public API for people who want help contributing HappyBE
 version: 1.0.0
 api: 3.0.0
