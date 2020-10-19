@@ -20,7 +20,7 @@ use pocketmine\Server;
 class PartyManager {
 
     /** @var Party[] $parties */
-    private static $parties;
+    private static $parties = [];
 
     /**
      * @param Player $player
@@ -58,6 +58,7 @@ class PartyManager {
 
                 /** @var string[] $friends */
                 $friends = $form->getCustomData();
+                $j = 0;
                 for($i = 0; $i < count($friends); $i++) {
                     if($data[$i] === true) {
                         $friend = Server::getInstance()->getPlayerExact($friends[$i]);
@@ -67,8 +68,12 @@ class PartyManager {
                         }
 
                         PartyManager::sendPartyInvitation($player, $friend);
+                        $j++;
                     }
                 }
+
+                $player->sendMessage("§9Party> §aParty created ($j invites sent)!");
+
             });
 
             $player->sendForm($form);
@@ -97,8 +102,8 @@ class PartyManager {
             }
 
             if($data === true) {
-                $friend->sendMessage("true");
                 $party->addMember($friend);
+                $party->broadcastMessage("§9Party> §a{$friend->getName()} joined the party!");
             }
         });
 

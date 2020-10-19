@@ -50,7 +50,12 @@ class AddFriendQuery extends AsyncQuery {
             return;
         }
 
-        $friendList = explode(",", $result->fetch_assoc()["Friends"]);
+        $result = $result->fetch_assoc();
+        $friendList = [];
+        if($result["Friends"] !== "") {
+            $friendList = explode(",", $result["Friends"]);
+        }
+
         if(!in_array($friend, $friendList)) {
             $this->changed = true;
             $friendList[] = $friend;

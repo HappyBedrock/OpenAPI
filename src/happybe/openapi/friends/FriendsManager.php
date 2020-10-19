@@ -8,6 +8,7 @@ use happybe\openapi\form\ModalForm;
 use happybe\openapi\mysql\query\AddFriendQuery;
 use happybe\openapi\mysql\QueryQueue;
 use pocketmine\Player;
+use pocketmine\Server;
 
 /**
  * Class FriendsManager
@@ -18,11 +19,13 @@ class FriendsManager {
     /**
      * @param Player $player
      * @param Player $friend
-     * @param callable<Player, AddFriendQuery> $handleUpdate
+     * @param callable<Player, AddFriendQuery>|null $handleUpdate
      */
-    public function setFriends(Player $player, Player $friend, callable $handleUpdate) {
+    public static function setFriends(Player $player, Player $friend, ?callable $handleUpdate = null) {
         QueryQueue::submitQuery(new AddFriendQuery($player->getName(), $friend->getName()), function (AddFriendQuery $query) use ($player, $handleUpdate) {
-            $handleUpdate($player, $query);
+            if(is_callable($handleUpdate)) {
+                $handleUpdate($player, $query);
+            }
         });
     }
 
@@ -30,14 +33,28 @@ class FriendsManager {
      * @param Player $player
      * @param Player $newFriend
      */
-    public function sendFriendRequest(Player $player, Player $newFriend) {
+    public static function sendFriendRequest(Player $player, Player $newFriend) {
         $form = new ModalForm("Friend Request", "{$player->getName()} sent you a friend request.");
         $form->setFirstButton("§aAccept");
         $form->setSecondButton("§cDecline");
 
         $form->setCustomData($player->getName());
-        $form->setAdvancedCallable(function (Player $player, $result, ModalForm $form) {
-            var_dump($form->data);
+        $form->setAdvancedCallable(function (Player $friend, $data, ModalForm $form) {
+            if($data !== true) {
+                $friend->sendMessage("§9Friends> §aFriend request cancelled!");
+                return;
+            }
+
+            $player = Server::getInstance()->getPlayerExact($form->getCustomData());
+            if($player === null) {
+                $friend->sendMessage("§9Friends> §cFriend request expired (player left the game).");
+                return;
+            }
+
+            $player->sendMessage("§9Friends> §a{$friend->getName()} accepted your friend request!");
+            $friend->sendMessage("§9Friends> §aFriend request accepted!");
+
+            FriendsManager::setFriends($player, $friend);
         });
 
         $newFriend->sendForm($form);

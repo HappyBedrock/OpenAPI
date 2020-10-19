@@ -9,10 +9,10 @@ use happybe\openapi\mysql\DatabaseData;
 use mysqli;
 
 /**
- * Class AddCoinsQuery
+ * Class AddTokensQuery
  * @package happybe\openapi\mysql\query
  */
-class AddCoinsQuery extends AsyncQuery {
+class AddTokensQuery extends AsyncQuery {
 
     /** @var string $player */
     public $player;
@@ -20,7 +20,7 @@ class AddCoinsQuery extends AsyncQuery {
     public $amount;
 
     /**
-     * AddCoinsQuery constructor.
+     * AddTokensQuery constructor.
      * @param string $player
      * @param int $amount
      */
@@ -33,6 +33,6 @@ class AddCoinsQuery extends AsyncQuery {
      * @param mysqli $mysqli
      */
     public function query(mysqli $mysqli): void {
-        $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "_" . DatabaseData::DEFAULT_TABLE . " SET Coins=Coins+{$this->amount} WHERE Name='{$this->player}'");
+        $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "_" . DatabaseData::DEFAULT_TABLE . " SET Tokens=Tokens+{$this->amount} WHERE Name='{$this->player}'");
     }
 }

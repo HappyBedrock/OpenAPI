@@ -38,6 +38,11 @@ class FetchFriendsQuery extends AsyncQuery {
         }
 
         $friends = $result->fetch_assoc()["Friends"] ?? "";
+        if($friends === "") {
+            $this->friends = serialize([]);
+            return;
+        }
+
         $this->friends = serialize(explode(",", $friends));
     }
 
@@ -45,7 +50,7 @@ class FetchFriendsQuery extends AsyncQuery {
      * @param Server $server
      */
     public function onCompletion(Server $server) {
-        $this->friends = unserialize($this->friends);
+        $this->friends = (array)unserialize($this->friends);
         parent::onCompletion($server);
     }
 }
