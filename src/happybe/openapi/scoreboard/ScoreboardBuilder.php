@@ -186,7 +186,7 @@ class ScoreboardBuilder {
             }
 
             self::removeLines($player, $updateList);
-            self::sendLines($player, $updateList);
+            self::sendLines($player, $splitText, $updateList);
             return;
         }
 

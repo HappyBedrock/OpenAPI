@@ -69,6 +69,27 @@ class FloatingText {
     }
 
     /**
+     * @param string $text
+     * @return AddPlayerPacket
+     */
+    public function encodeSpawnPacket(string $text): AddPlayerPacket {
+        $pk = clone $this->packet;
+        $pk->username = $text;
+
+        return $pk;
+    }
+
+    /**
+     * @return RemoveActorPacket
+     */
+    public function encodeDespawnPacket(): RemoveActorPacket {
+        $pk = new RemoveActorPacket();
+        $pk->entityUniqueId = $this->getEntityRuntimeId();
+
+        return $pk;
+    }
+
+    /**
      * @return Vector3
      */
     public function getPosition(): Vector3 {
