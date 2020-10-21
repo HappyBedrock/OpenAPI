@@ -26,6 +26,8 @@ class LazyRegisterQuery extends AsyncQuery {
 
     /** @var string|array $row */
     public $row;
+    /** @var string|array $partiesRow */
+    public $partiesRow;
 
     /**
      * LazyRegisterQuery constructor.
@@ -49,6 +51,13 @@ class LazyRegisterQuery extends AsyncQuery {
         }
 
         $this->row = serialize($mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_Values WHERE Name='{$this->player}';")->fetch_assoc());
+        $query = $mysqli->query("SELECT * FROM HB_Parties WHERE FIND_IN_SET('{$this->player}', Members) or Owner='{$this->player}';");
+        if($query->num_rows === null) {
+            $this->partiesRow = serialize([]);
+        }
+        else {
+            $this->partiesRow = serialize($query->fetch_assoc());
+        }
     }
 
     /**
@@ -62,7 +71,8 @@ class LazyRegisterQuery extends AsyncQuery {
      * @param Server $server
      */
     public function onCompletion(Server $server) {
-        $this->row = unserialize($this->row);
+        $this->row = (array)unserialize($this->row);
+        $this->partiesRow = (array)unserialize($this->partiesRow);
         parent::onCompletion($server);
     }
 }

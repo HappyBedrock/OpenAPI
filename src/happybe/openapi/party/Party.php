@@ -6,7 +6,10 @@ namespace happybe\openapi\party;
 
 use happybe\openapi\mysql\query\AddPartyMemberQuery;
 use happybe\openapi\mysql\query\RemovePartyMemberQuery;
+use happybe\openapi\mysql\query\UpdateRowQuery;
 use happybe\openapi\mysql\QueryQueue;
+use happybe\openapi\servers\Server;
+use happybe\openapi\servers\ServerManager;
 use pocketmine\Player;
 
 /**
@@ -15,6 +18,8 @@ use pocketmine\Player;
  */
 class Party {
 
+    /** @var bool $isOnline */
+    private $isOnline = true;
     /** @var Player $owner */
     private $owner;
     /** @var Player[] $members */
@@ -30,17 +35,25 @@ class Party {
 
     /**
      * @param Player $player
+     * @param bool $updateInDatabase
      */
-    public function addMember(Player $player) {
-        QueryQueue::submitQuery(new AddPartyMemberQuery($this->getOwner()->getName(), $player->getName()));
+    public function addMember(Player $player, bool $updateInDatabase = true) {
+        if($updateInDatabase) {
+            QueryQueue::submitQuery(new AddPartyMemberQuery($this->getOwner()->getName(), $player->getName()));
+        }
+
         $this->members[$player->getName()] = $player;
     }
 
     /**
      * @param Player $player
+     * @param bool $updateInDatabase
      */
-    public function removeMember(Player $player) {
-        QueryQueue::submitQuery(new RemovePartyMemberQuery($this->getOwner()->getName(), $player->getName()));
+    public function removeMember(Player $player, bool $updateInDatabase = true) {
+        if($updateInDatabase) {
+            QueryQueue::submitQuery(new RemovePartyMemberQuery($this->getOwner()->getName(), $player->getName()));
+        }
+
         unset($this->members[$player->getName()]);
     }
 
@@ -60,6 +73,27 @@ class Party {
         foreach (array_merge($this->getMembers(), [$this->getOwner()]) as $player) {
             $player->sendMessage($message);
         }
+    }
+
+    /**
+     * @param Server $server
+     */
+    public function transfer(Server $server) {
+        QueryQueue::submitQuery(new UpdateRowQuery(["CurrentServer" => $server->getServerName()], "Owner", $this->getOwner()->getName(), "Parties"));
+        $this->isOnline = $server->getServerName() == ServerManager::getCurrentServer()->getServerName();
+
+        foreach ($this->getMembers() as $member) {
+            $server->transferPlayerHere($member);
+        }
+
+        PartyManager::removeParty($this);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOnline(): bool {
+        return $this->isOnline;
     }
 
     /**

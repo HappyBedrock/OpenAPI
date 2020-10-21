@@ -9,8 +9,11 @@ use happybe\openapi\form\ModalForm;
 use happybe\openapi\mysql\query\CreatePartyQuery;
 use happybe\openapi\mysql\query\DestroyPartyQuery;
 use happybe\openapi\mysql\query\FetchFriendsQuery;
+use happybe\openapi\mysql\query\LazyRegisterQuery;
 use happybe\openapi\mysql\QueryQueue;
+use happybe\openapi\OpenAPI;
 use pocketmine\Player;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 
 /**
@@ -21,6 +24,11 @@ class PartyManager {
 
     /** @var Party[] $parties */
     private static $parties = [];
+    /** @var array $unloggedPartySessions */
+    private static $unloggedPartySessions = [];
+
+    /** @var callable[] $offlineSessionHandlers */
+    private static $offlineSessionHandlers = [];
 
     /**
      * @param Player $player
@@ -138,5 +146,97 @@ class PartyManager {
         }
 
         unset(self::$parties[$party->getOwner()->getName()]);
+    }
+
+    /**
+     * @param Party $party
+     */
+    public static function removeParty(Party $party) {
+        unset(self::$parties[$party->getOwner()->getName()]);
+    }
+
+    /**
+     * @param Player $player
+     * @param LazyRegisterQuery $query
+     */
+    public static function handleLoginQuery(Player $player, LazyRegisterQuery $query) {
+        if(empty($query->partiesRow)) {
+            return;
+        }
+
+        $owner = $query->partiesRow["Owner"];
+        if($owner === $player) {
+            $party = new Party($player);
+
+            /** @var Player[] $otherMembers */
+            $otherMembers = self::$unloggedPartySessions[$owner] ?? [];
+            foreach ($otherMembers as $member) {
+                $party->addMember($player, false);
+                if(!$member->isOnline()) {
+                    $party->removeMember($player);
+                }
+            }
+
+            return;
+        }
+
+        if(isset(self::$parties[$owner])) {
+            self::$parties[$owner]->addMember($player, false);
+            return;
+        }
+
+        if(!isset(self::$unloggedPartySessions[$owner])) {
+            OpenAPI::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function (int $i) use ($owner) {
+                if(!isset(self::$unloggedPartySessions[$owner])) {
+                    return;
+                }
+
+                /** @var Player $player */
+                foreach (self::$unloggedPartySessions[$owner] as $player) {
+                    $player->sendMessage("§9Party> §cParty was destroyed (owner of the party has left the server while transferring)");
+                }
+
+                $handler = self::$offlineSessionHandlers[$owner] ?? null;
+                if(is_callable($handler)) {
+                    $handler(array_values(self::$unloggedPartySessions[$owner]));
+                }
+
+                QueryQueue::submitQuery(new DestroyPartyQuery($owner));
+
+                unset(self::$unloggedPartySessions[$owner]);
+            }), 40);
+        }
+
+        self::$unloggedPartySessions[$owner][] = $player;
+    }
+
+    /**
+     * @param Player $player
+     */
+    public static function handleQuit(Player $player) {
+        $party = self::getPartyByPlayer($player);
+        if($party === null) {
+            return;
+        }
+
+        if(!$party->isOnline()) {
+            return;
+        }
+
+        if($party->getOwner()->getName() == $player->getName()) {
+            $party->broadcastMessage("§9Party> §c{$player->getName()} left the server.");
+            self::destroyParty($party);
+            return;
+        }
+
+        $party->removeMember($player);
+    }
+
+    /**
+     * @param string $owner
+     * @param callable $handler
+     */
+    public static function setHandlerForDestroyingOfflineSession(string $owner, callable $handler) {
+        self::$offlineSessionHandlers[$owner] = $handler;
     }
 }

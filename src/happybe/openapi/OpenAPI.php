@@ -11,6 +11,7 @@ use happybe\openapi\mysql\query\ConnectQuery;
 use happybe\openapi\mysql\query\LazyRegisterQuery;
 use happybe\openapi\mysql\QueryQueue;
 use happybe\openapi\mysql\TableCache;
+use happybe\openapi\party\PartyManager;
 use happybe\openapi\ranks\RankDatabase;
 use happybe\openapi\scoreboard\ScoreboardBuilder;
 use happybe\openapi\servers\ServerManager;
@@ -103,6 +104,7 @@ class OpenAPI extends PluginBase implements Listener {
             RankDatabase::savePlayerRank($player, $query->row["Rank"] ?? "ReadError");
             RankDatabase::saveHasVoted($player, (int)($query->row["VoteDate"] ?? ""), ($query->row["HasVoted"] ?? "0") == "1");
             LanguageManager::saveLanguage($player, $query->row["Language"] ?? "ReadError");
+            PartyManager::handleLoginQuery($player, $query);
         });
     }
 
