@@ -32,10 +32,15 @@ class AddPartyMemberQuery extends AsyncQuery {
      * @param mysqli $mysqli
      */
     public function query(mysqli $mysqli): void {
-        $result = $mysqli->query("SELECT * FROM HB_Parties WHERE Owner='{$this->owner}';")->fetch_assoc();
+        $result = $mysqli->query("SELECT * FROM HB_Parties WHERE Owner='{$this->owner}';");
+        if($result->num_rows === 0) {
+            return;
+        }
+
+        $result = $result->fetch_assoc();
 
         $members = [];
-        if($result["Members"] !== "") {
+        if($result["Members"] != "") {
             $members = explode(",", $result["Members"]);
         }
 

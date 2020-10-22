@@ -69,8 +69,7 @@ class Party {
      * @param string $message
      */
     public function broadcastMessage(string $message) {
-        /** @var Player $player */
-        foreach (array_merge($this->getMembers(), [$this->getOwner()]) as $player) {
+        foreach ($this->getAll() as $player) {
             $player->sendMessage($message);
         }
     }
@@ -82,6 +81,7 @@ class Party {
         QueryQueue::submitQuery(new UpdateRowQuery(["CurrentServer" => $server->getServerName()], "Owner", $this->getOwner()->getName(), "Parties"));
         $this->isOnline = $server->getServerName() == ServerManager::getCurrentServer()->getServerName();
 
+        $server->transferPlayerHere($this->getOwner());
         foreach ($this->getMembers() as $member) {
             $server->transferPlayerHere($member);
         }
@@ -101,6 +101,16 @@ class Party {
      */
     public function getMembers(): array {
         return $this->members;
+    }
+
+    /**
+     * @return Player[]
+     */
+    public function getAll(): array {
+        $all = $this->getMembers();
+        $all[$this->getOwner()->getName()] = $this->getOwner();
+
+        return $all;
     }
 
     /**

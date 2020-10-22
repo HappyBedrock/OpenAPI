@@ -32,7 +32,16 @@ class RemovePartyMemberQuery extends AsyncQuery {
      * @param mysqli $mysqli
      */
     public function query(mysqli $mysqli): void {
-        $result = $mysqli->query("SELECT * FROM HB_Parties WHERE Owner='{$this->owner}';")->fetch_assoc();
+        $result = $mysqli->query("SELECT * FROM HB_Parties WHERE Owner='{$this->owner}';");
+        if($result->num_rows === 0) {
+            return;
+        }
+
+        $result = $result->fetch_assoc();
+        if($result["Members"] == "") {
+            return;
+        }
+
         $members = explode(",", $result["Members"]);
         $key = array_search($this->member, $members);
         unset($members[$key]);
