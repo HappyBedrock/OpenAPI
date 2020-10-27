@@ -11,6 +11,7 @@ use happybe\openapi\mysql\query\DestroyPartyQuery;
 use happybe\openapi\mysql\query\FetchFriendsQuery;
 use happybe\openapi\mysql\query\LazyRegisterQuery;
 use happybe\openapi\mysql\query\RemovePartyMemberQuery;
+use happybe\openapi\mysql\query\UpdateRowQuery;
 use happybe\openapi\mysql\QueryQueue;
 use happybe\openapi\OpenAPI;
 use happybe\openapi\servers\ServerManager;
@@ -192,7 +193,7 @@ class PartyManager {
 
             $callback = self::$offlineSessionHandlers[$owner] ?? null;
 
-            if((!$ownerPlayer->isOnline()) || $ownerPlayer === null) {
+            if($ownerPlayer === null || (!$ownerPlayer->isOnline())) {
                 QueryQueue::submitQuery(new DestroyPartyQuery($owner));
                 foreach (self::$unloggedPartySessions[$owner] as $member) {
                     $member->sendMessage("§9Party> §cParty destroyed (It's owner left the game)");
@@ -234,13 +235,16 @@ class PartyManager {
                 $party->broadcastMessage("§9Party> §c" . count($whoseLeftTheGame) . " party members left the game.");
             }
 
-
             if(is_callable($callback)) {
                 $callback(true, array_filter(array_values(self::$unloggedPartySessions[$owner]), function (Player $player) {return $player->isOnline();}), $party);
             }
 
+            QueryQueue::submitQuery(new UpdateRowQuery(["CurrentServer" => ServerManager::getCurrentServer()->getServerName()], "Owner", $ownerPlayer->getName(), "Parties"));
+
             unset(self::$unloggedPartySessions[$owner]);
             unset(self::$offlineSessionHandlers[$owner]);
+
+            self::$parties[$owner] = $party;
         }), 20);
     }
 

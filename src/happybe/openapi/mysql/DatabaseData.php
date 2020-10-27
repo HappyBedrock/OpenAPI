@@ -28,6 +28,7 @@ class DatabaseData {
         LazyRegisterQuery::addTableToRegister("Stats"); // TODO - Create table per minigame
         LazyRegisterQuery::addTableToRegister("Friends");
         LazyRegisterQuery::addTableToRegister("SkyWars");
+        LazyRegisterQuery::addTableToRegister("TheBridge");
     }
 
     /**
