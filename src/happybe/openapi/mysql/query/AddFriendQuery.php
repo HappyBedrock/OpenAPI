@@ -61,6 +61,9 @@ class AddFriendQuery extends AsyncQuery {
             $friendList[] = $friend;
 
             $mysqli->query("UPDATE HB_Friends SET Friends='".implode(",", $friendList)."' WHERE Name='{$player}';");
+            if($mysqli->error) {
+                echo "Encountered MySQL error: {$mysqli->error}\n";
+            }
         }
     }
 }

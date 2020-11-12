@@ -228,7 +228,9 @@ class PartyManager {
                 QueryQueue::submitQuery(new RemovePartyMemberQuery($owner, $toRemove));
             }
             foreach ($inGame as $player) {
-                $party->addMember($player, false);
+                if($player->getName() != $owner) {
+                    $party->addMember($player, false);
+                }
             }
 
             if(count($whoseLeftTheGame) > 0) {

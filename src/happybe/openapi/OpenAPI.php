@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace happybe\openapi;
 
 use happybe\openapi\bossbar\BossBarBuilder;
+use happybe\openapi\event\LoginQueryReceiveEvent;
 use happybe\openapi\lang\LanguageManager;
 use happybe\openapi\mysql\DatabaseData;
 use happybe\openapi\mysql\query\ConnectQuery;
@@ -105,6 +106,8 @@ class OpenAPI extends PluginBase implements Listener {
             RankDatabase::saveHasVoted($player, (int)($query->row["VoteDate"] ?? ""), ($query->row["HasVoted"] ?? "0") == "1");
             LanguageManager::saveLanguage($player, $query->row["Language"] ?? "ReadError");
             PartyManager::handleLoginQuery($player, $query);
+
+            (new LoginQueryReceiveEvent($player, $query))->call();
         });
     }
 

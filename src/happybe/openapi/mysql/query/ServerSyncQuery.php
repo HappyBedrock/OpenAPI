@@ -53,7 +53,7 @@ class ServerSyncQuery extends AsyncQuery {
      * @param Server $server
      */
     public function onCompletion(Server $server) {
-        $this->table = unserialize($this->table);
+        $this->table = unserialize((string)$this->table);
         parent::onCompletion($server);
     }
 }

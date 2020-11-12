@@ -29,6 +29,7 @@ class DatabaseData {
         LazyRegisterQuery::addTableToRegister("Friends");
         LazyRegisterQuery::addTableToRegister("SkyWars");
         LazyRegisterQuery::addTableToRegister("TheBridge");
+        LazyRegisterQuery::addTableToRegister("UHC");
     }
 
     /**
