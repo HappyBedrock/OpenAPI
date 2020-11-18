@@ -39,18 +39,18 @@ class ServerManager {
 
         OpenAPI::getInstance()->getScheduler()->scheduleRepeatingTask(new ClosureTask(function (int $currentTick): void {
             QueryQueue::submitQuery(new ServerSyncQuery(self::getCurrentServer()->getServerName(), count(\pocketmine\Server::getInstance()->getOnlinePlayers())), function (ServerSyncQuery $query) {
-                foreach ($query->table as $row) {
+                foreach ((array)$query->table as $row) {
                     if(ServerManager::getCurrentServer()->getServerName() === $row["ServerName"]) {
                         continue;
                     }
 
                     ServerManager::updateServerData(
-                        $row["ServerName"],
-                        $row["ServerAlias"],
+                        (string)$row["ServerName"],
+                        (string)$row["ServerAlias"],
                         (int)$row["ServerPort"],
                         (int)$row["OnlinePlayers"],
-                        $row["IsOnline"] == "1",
-                        $row["IsWhitelisted"] == "1"
+                        (bool)($row["IsOnline"] == "1"),
+                        (bool)($row["IsWhitelisted"] == "1")
                     );
                 }
             });
@@ -72,6 +72,10 @@ class ServerManager {
      */
     public static function updateServerData(string $serverName, string $serverAlias, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
         if(!isset(self::$servers[$serverName])) {
+            if(strpos($serverName, "-") === false) {
+                return;
+            }
+
             self::$servers[$serverName] = $server = new Server($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
             OpenAPI::getInstance()->getLogger()->info("Registered new server ($serverName)");
 

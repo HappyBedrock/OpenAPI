@@ -49,7 +49,7 @@ class CheckBanQuery extends AsyncQuery {
         }
 
         $this->banned = true;
-        $this->banData = serialize($row);
+        $this->banData = (string)serialize($row);
     }
 
     /**
@@ -57,7 +57,7 @@ class CheckBanQuery extends AsyncQuery {
      */
     public function onCompletion(Server $server) {
         if($this->banData !== null) {
-            $this->banData = (array)unserialize($this->banData);
+            $this->banData = (array)unserialize((string)$this->banData);
         }
         parent::onCompletion($server);
     }

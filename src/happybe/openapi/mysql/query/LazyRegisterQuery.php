@@ -71,8 +71,8 @@ class LazyRegisterQuery extends AsyncQuery {
      * @param Server $server
      */
     public function onCompletion(Server $server) {
-        $this->row = (array)unserialize($this->row);
-        $this->partiesRow = (array)unserialize($this->partiesRow);
+        $this->row = (array)unserialize((string)$this->row);
+        $this->partiesRow = (array)unserialize((string)$this->partiesRow);
         parent::onCompletion($server);
     }
 }

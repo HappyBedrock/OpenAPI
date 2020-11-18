@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace happybe\openapi\party;
 
 use happybe\openapi\mysql\query\AddPartyMemberQuery;
+use happybe\openapi\mysql\query\CheckBanQuery;
 use happybe\openapi\mysql\query\RemovePartyMemberQuery;
 use happybe\openapi\mysql\query\UpdateRowQuery;
 use happybe\openapi\mysql\QueryQueue;
@@ -83,7 +84,19 @@ class Party {
 
         $server->transferPlayerHere($this->getOwner());
         foreach ($this->getMembers() as $member) {
-            $server->transferPlayerHere($member);
+            if($server->isLobby()) {
+                $server->transferPlayerHere($member);
+            } else {
+                QueryQueue::submitQuery(new CheckBanQuery($member->getName()), function (CheckBanQuery $query) use ($server, $member) {
+                    if($query->banned) {
+                        $member->sendMessage("§9Party> §cYou were suspended from our game servers.");
+                        $this->removeMember($member);
+                        return;
+                    }
+
+                    $server->transferPlayerHere($member);
+                });
+            }
         }
 
         PartyManager::removeParty($this);
