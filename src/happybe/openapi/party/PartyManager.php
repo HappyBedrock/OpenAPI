@@ -15,7 +15,6 @@ use happybe\openapi\mysql\query\UpdateRowQuery;
 use happybe\openapi\mysql\QueryQueue;
 use happybe\openapi\OpenAPI;
 use happybe\openapi\servers\ServerManager;
-use pocketmine\item\Bread;
 use pocketmine\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;

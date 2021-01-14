@@ -7,9 +7,8 @@ namespace happybe\openapi\servers;
 use happybe\openapi\math\TimeFormatter;
 use happybe\openapi\mysql\query\CheckBanQuery;
 use happybe\openapi\mysql\QueryQueue;
-use pocketmine\network\mcpe\protocol\ScriptCustomEventPacket;
+use pocketmine\network\mcpe\protocol\TransferPacket;
 use pocketmine\Player;
-use pocketmine\utils\Binary;
 
 /**
  * Class Server
@@ -23,8 +22,11 @@ class Server {
     /** @var string $serverAlias */
     public $serverAlias;
 
+    /** @var string $serverAddress */
+    public $serverAddress;
     /** @var int $serverPort */
     public $serverPort;
+
     /** @var int $onlinePlayers */
     public $onlinePlayers;
     /** @var bool $isOnline */
@@ -37,26 +39,29 @@ class Server {
      *
      * @param string $serverName
      * @param string $serverAlias
+     * @param string $serverAddress
      * @param int $serverPort
      * @param int $onlinePlayers
      * @param bool $isOnline
      * @param bool $isWhitelisted
      */
-    public function __construct(string $serverName, string $serverAlias, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
-        $this->update($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+    public function __construct(string $serverName, string $serverAlias, string $serverAddress, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
+        $this->update($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
     }
 
     /**
      * @param string $serverName
      * @param string $serverAlias
+     * @param string $serverAddress
      * @param int $serverPort
      * @param int $onlinePlayers
      * @param bool $isOnline
      * @param bool $isWhitelisted
      */
-    public function update(string $serverName, string $serverAlias, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
+    public function update(string $serverName, string $serverAlias, string $serverAddress, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
         $this->serverName = $serverName;
         $this->serverAlias = $serverAlias;
+        $this->serverAddress = $serverAddress;
         $this->serverPort = $serverPort;
         $this->onlinePlayers = $onlinePlayers;
         $this->isOnline = $isOnline;
@@ -75,6 +80,13 @@ class Server {
      */
     public function getServerAlias(): string {
         return $this->serverAlias;
+    }
+
+    /**
+     * @return string
+     */
+    public function getServerAddress(): string {
+        return $this->serverAddress;
     }
 
     /**
@@ -127,11 +139,9 @@ class Server {
                 return;
             }
 
-//            $player->transfer("193.70.81.203", $this->getServerPort(), "Transfer to {$this->getServerName()}");
-
-            $pk = new ScriptCustomEventPacket();
-            $pk->eventName = "bungeecord:main";
-            $pk->eventData = Binary::writeShort(7) . "Connect" . Binary::writeShort(strlen($this->serverName)) . $this->serverName;
+            $pk = new TransferPacket();
+            $pk->address = $this->getServerAddress();
+            $pk->port = $this->getServerPort();
 
             $player->dataPacket($pk);
         };

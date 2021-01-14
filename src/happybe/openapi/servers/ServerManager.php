@@ -32,7 +32,7 @@ class ServerManager {
     public static function init() {
         /** @var string $currentServerName */
         $currentServerName = OpenAPI::getInstance()->getConfig()->get("current-server-name");
-        self::updateServerData($currentServerName, "null", $currentServerPort = \pocketmine\Server::getInstance()->getConfigInt("server-port"));
+        self::updateServerData($currentServerName, "null", "172.18.0.1", $currentServerPort = \pocketmine\Server::getInstance()->getConfigInt("server-port"));
         QueryQueue::submitQuery(new LazyRegisterServerQuery($currentServerName, $currentServerPort));
 
         self::$currentServer = self::getServer($currentServerName);
@@ -47,6 +47,7 @@ class ServerManager {
                     ServerManager::updateServerData(
                         (string)$row["ServerName"],
                         (string)$row["ServerAlias"],
+                        (string)$row["ServerAddress"],
                         (int)$row["ServerPort"],
                         (int)$row["OnlinePlayers"],
                         (bool)($row["IsOnline"] == "1"),
@@ -65,18 +66,19 @@ class ServerManager {
     /**
      * @param string $serverName
      * @param string $serverAlias
+     * @param string $serverAddress
      * @param int $serverPort
      * @param int $onlinePlayers
      * @param bool $isOnline
      * @param bool $isWhitelisted
      */
-    public static function updateServerData(string $serverName, string $serverAlias, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
+    public static function updateServerData(string $serverName, string $serverAlias, string $serverAddress, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
         if(!isset(self::$servers[$serverName])) {
             if(strpos($serverName, "-") === false) {
                 return;
             }
 
-            self::$servers[$serverName] = $server = new Server($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+            self::$servers[$serverName] = $server = new Server($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
             OpenAPI::getInstance()->getLogger()->info("Registered new server ($serverName)");
 
             $groupName = substr($serverName, 0, strpos($serverName , "-"));
@@ -92,7 +94,7 @@ class ServerManager {
             return;
         }
 
-        self::$servers[$serverName]->update($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+        self::$servers[$serverName]->update($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
     }
 
     /**

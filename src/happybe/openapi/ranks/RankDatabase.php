@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace happybe\openapi\ranks;
 
-use happybe\openapi\mysql\DatabaseData;
 use happybe\openapi\mysql\query\UpdateRowQuery;
 use happybe\openapi\mysql\QueryQueue;
 use happybe\openapi\OpenAPI;

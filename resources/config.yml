@@ -1,6 +1,6 @@
 ---
-# Server settings
-current-server-name: "Lobby-1"
+# Servers settings
+current-server-name: "Hub-1"
 
 # API key for minecraft server list
 server-list-api-key: ""

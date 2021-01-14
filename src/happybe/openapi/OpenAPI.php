@@ -139,17 +139,6 @@ class OpenAPI extends PluginBase implements Listener {
     }
 
     /**
-     * @param UpdateNotifyEvent $event
-     */
-    public function onUpdate(UpdateNotifyEvent $event) {
-//        $updater = $event->getUpdater();
-//        file_put_contents($this->getServer()->getDataPath() . "PocketMine-MP.phar", Utils::readURL($updater->getUpdateInfo()["download_url"]));
-//
-//        $this->getLogger()->notice("Restarting server due to update...");
-//        $this->getServer()->shutdown();
-    }
-
-    /**
      * @return OpenAPI
      */
     public static function getInstance(): OpenAPI {
