@@ -35,10 +35,18 @@ class DeviceData {
 
     /**
      * @param Player $player
+     * @return int
+     */
+    public static function getDeviceId(Player $player): int {
+        return self::$deviceOS[$player->getName()] ?? -1;
+    }
+
+    /**
+     * @param Player $player
      * @return string
      */
     public static function getDeviceName(Player $player): string {
-        $deviceOS = self::$deviceOS[$player->getName()] ?? -1;
+        $deviceOS = self::getDeviceId($player);
 
         switch ($deviceOS) {
             case DeviceOS::ANDROID:

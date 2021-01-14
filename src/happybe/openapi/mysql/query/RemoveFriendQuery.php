@@ -51,7 +51,7 @@ class RemoveFriendQuery extends AsyncQuery {
             return;
         }
 
-        $friends = explode(",", $result["Friends"]);
+        $friends = explode(",", $result->fetch_assoc()["Friends"]);
         if(in_array($friend, $friends)) {
             $this->changed = true;
             $key = array_search($friend, $friends);

@@ -107,6 +107,8 @@ class OpenAPI extends PluginBase implements Listener {
             LanguageManager::saveLanguage($player, $query->row["Language"] ?? "ReadError");
             PartyManager::handleLoginQuery($player, $query);
 
+            $player->namedtag->setInt("HappyBedrockLevel", (int)$query->row["Level"] ?? -1);
+
             (new LoginQueryReceiveEvent($player, $query))->call();
         });
     }
@@ -140,11 +142,11 @@ class OpenAPI extends PluginBase implements Listener {
      * @param UpdateNotifyEvent $event
      */
     public function onUpdate(UpdateNotifyEvent $event) {
-        $updater = $event->getUpdater();
-        file_put_contents($this->getServer()->getDataPath() . "PocketMine-MP.phar", Utils::readURL($updater->getUpdateInfo()["download_url"]));
-
-        $this->getLogger()->notice("Restarting server due to update...");
-        $this->getServer()->shutdown();
+//        $updater = $event->getUpdater();
+//        file_put_contents($this->getServer()->getDataPath() . "PocketMine-MP.phar", Utils::readURL($updater->getUpdateInfo()["download_url"]));
+//
+//        $this->getLogger()->notice("Restarting server due to update...");
+//        $this->getServer()->shutdown();
     }
 
     /**

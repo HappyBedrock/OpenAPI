@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace happybe\openapi\stats;
 
+use happybe\openapi\mysql\query\AddExperienceQuery;
 use happybe\openapi\mysql\query\AddPointQuery;
 use happybe\openapi\mysql\QueryQueue;
 use pocketmine\Player;
@@ -13,6 +14,15 @@ use pocketmine\Player;
  * @package happybe\openapi\stats
  */
 class Stats {
+
+    public static function addExperience(Player $player, int $experience) {
+        QueryQueue::submitQuery(new AddExperienceQuery($player->getName(), $experience), function (AddExperienceQuery $query) use ($player) {
+            if($query->levelUp && ($player->isOnline())) {
+                $player->sendMessage("9HappyBedrock> §a§lLEVEL UP! §r§aCurrent level: {$query->newLevel}!");
+                $player->namedtag->setInt("HappyBedrockLevel", $query->newLevel);
+            }
+        });
+    }
 
     /**
      * @param Player $player

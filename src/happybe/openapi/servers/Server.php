@@ -109,7 +109,7 @@ class Server {
      * @return bool
      */
     public function isLobby(): bool {
-        return strpos($this->getServerName(), "Lobby") !== false;
+        return strpos($this->getServerName(), "Hub") !== false;
     }
 
     /**
@@ -126,6 +126,8 @@ class Server {
                 $player->sendMessage("§9Ban> §6You are banned by {$admin} until {$until} for {$reason}.");
                 return;
             }
+
+//            $player->transfer("193.70.81.203", $this->getServerPort(), "Transfer to {$this->getServerName()}");
 
             $pk = new ScriptCustomEventPacket();
             $pk->eventName = "bungeecord:main";
