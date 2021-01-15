@@ -7,7 +7,7 @@ namespace happybe\openapi\servers;
 use happybe\openapi\math\TimeFormatter;
 use happybe\openapi\mysql\query\CheckBanQuery;
 use happybe\openapi\mysql\QueryQueue;
-use pocketmine\network\mcpe\protocol\TransferPacket;
+use happybe\openapi\packets\SunTransferPacket;
 use pocketmine\Player;
 
 /**
@@ -139,7 +139,9 @@ class Server {
                 return;
             }
 
-            $pk = new TransferPacket();
+            $player->sendMessage("Transferring to {$this->getServerAddress()}:{$this->getServerPort()}");
+
+            $pk = new SunTransferPacket();
             $pk->address = $this->getServerAddress();
             $pk->port = $this->getServerPort();
 
