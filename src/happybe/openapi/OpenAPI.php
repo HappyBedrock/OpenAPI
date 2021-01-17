@@ -12,21 +12,17 @@ use happybe\openapi\mysql\query\ConnectQuery;
 use happybe\openapi\mysql\query\LazyRegisterQuery;
 use happybe\openapi\mysql\QueryQueue;
 use happybe\openapi\mysql\TableCache;
-use happybe\openapi\packets\SunTransferPacket;
 use happybe\openapi\party\PartyManager;
 use happybe\openapi\ranks\RankDatabase;
 use happybe\openapi\scoreboard\ScoreboardBuilder;
 use happybe\openapi\servers\ServerManager;
 use happybe\openapi\utils\DeviceData;
-use happybe\openapi\utils\Utils;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\event\server\UpdateNotifyEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
-use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\RakLibInterface;
 use pocketmine\plugin\PluginBase;
 
@@ -66,8 +62,6 @@ class OpenAPI extends PluginBase implements Listener {
         RankDatabase::init();
         ServerManager::init();
         LanguageManager::init();
-
-        PacketPool::registerPacket(new SunTransferPacket());
 
         if(
             !$this->getServer()->getConfigBool("xbox-auth") &&

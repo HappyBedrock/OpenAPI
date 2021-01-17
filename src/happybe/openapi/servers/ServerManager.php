@@ -10,6 +10,8 @@ use happybe\openapi\mysql\query\ServerSyncQuery;
 use happybe\openapi\mysql\query\UpdateRowQuery;
 use happybe\openapi\mysql\QueryQueue;
 use happybe\openapi\OpenAPI;
+use happybe\openapi\portal\PacketPool;
+use happybe\openapi\portal\PortalConnection;
 use mysqli;
 use pocketmine\scheduler\ClosureTask;
 
@@ -28,6 +30,9 @@ class ServerManager {
 
     /** @var Server $currentServer */
     private static $currentServer;
+
+    /** @var PortalConnection $portalConnection */
+    private static $portalConnection;
 
     public static function init() {
         /** @var string $currentServerName */
@@ -56,11 +61,16 @@ class ServerManager {
                 }
             });
         }), self::REFRESH_TICKS);
+
+        PacketPool::init();
+        self::$portalConnection = new PortalConnection();
     }
 
     public static function save() {
         $query = new UpdateRowQuery(["IsOnline" => 0, "OnlinePlayers" => 0], "ServerName", self::getCurrentServer()->getServerName(), "Servers");
         $query->query(new mysqli(DatabaseData::getHost(), DatabaseData::getUser(), DatabaseData::getPassword(), DatabaseData::DATABASE));
+
+        self::getPortalConnection()->close();
     }
 
     /**
@@ -114,6 +124,13 @@ class ServerManager {
     }
 
     /**
+     * @return ServerGroup
+     */
+    public static function getCurrentServerGroup(): ServerGroup {
+        return self::getServerGroup(substr(self::getCurrentServer()->getServerName(), 0, strpos(self::getCurrentServer()->getServerName(), "-")));
+    }
+
+    /**
      * @param string $name
      * @return ServerGroup|null
      */
@@ -141,5 +158,12 @@ class ServerManager {
      */
     public static function getCurrentServer(): Server {
         return self::$currentServer;
+    }
+
+    /**
+     * @return PortalConnection
+     */
+    public static function getPortalConnection(): PortalConnection {
+        return self::$portalConnection;
     }
 }

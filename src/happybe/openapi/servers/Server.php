@@ -7,7 +7,7 @@ namespace happybe\openapi\servers;
 use happybe\openapi\math\TimeFormatter;
 use happybe\openapi\mysql\query\CheckBanQuery;
 use happybe\openapi\mysql\QueryQueue;
-use happybe\openapi\packets\SunTransferPacket;
+use happybe\openapi\portal\packets\TransferRequestPacket;
 use pocketmine\Player;
 
 /**
@@ -69,6 +69,46 @@ class Server {
     }
 
     /**
+     * @param Player $player
+     */
+    public function transferPlayerHere(Player $player) {
+        $callback = function (CheckBanQuery $query = null) use ($player) {
+            if($query !== null && $query->banned && ServerManager::getCurrentServer()->isLobby() && !$this->isLobby()) {
+                $admin = $query->banData["Admin"];
+                $until = $this->getTimeName((int)$query->banData["Time"]);
+                $reason = $query->banData["Reason"];
+
+                $player->sendMessage("§9Transfer> §cYou aren't permitted to play on our game servers.");
+                $player->sendMessage("§9Ban> §6You are banned by {$admin} until {$until} for {$reason}.");
+                return;
+            }
+
+            $player->sendMessage("Transferring to {$this->getServerAddress()}:{$this->getServerPort()}");
+
+            $pk = new TransferRequestPacket();
+            $pk->entityRuntimeId = $player->getId();
+            $pk->server = $this->getServerName();
+            $pk->group = substr($this->getServerName(), 0, strpos($this->getServerName(), "-"));
+
+            ServerManager::getPortalConnection()->sendPacketToProxy($pk);
+        };
+
+        if(ServerManager::getCurrentServer()->isLobby() && !$this->isLobby()) {
+            QueryQueue::submitQuery(new CheckBanQuery($player->getName()), $callback);
+            return;
+        }
+
+        $callback();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLobby(): bool {
+        return strpos($this->getServerName(), "Hub") !== false;
+    }
+
+    /**
      * @return string
      */
     public function getServerName(): string {
@@ -115,44 +155,5 @@ class Server {
      */
     public function isWhitelisted(): bool {
         return $this->isWhitelisted;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isLobby(): bool {
-        return strpos($this->getServerName(), "Hub") !== false;
-    }
-
-    /**
-     * @param Player $player
-     */
-    public function transferPlayerHere(Player $player) {
-        $callback = function (CheckBanQuery $query = null) use ($player) {
-            if($query !== null && $query->banned && ServerManager::getCurrentServer()->isLobby() && !$this->isLobby()) {
-                $admin = $query->banData["Admin"];
-                $until = $this->getTimeName((int)$query->banData["Time"]);
-                $reason = $query->banData["Reason"];
-
-                $player->sendMessage("§9Transfer> §cYou aren't permitted to play on our game servers.");
-                $player->sendMessage("§9Ban> §6You are banned by {$admin} until {$until} for {$reason}.");
-                return;
-            }
-
-            $player->sendMessage("Transferring to {$this->getServerAddress()}:{$this->getServerPort()}");
-
-            $pk = new SunTransferPacket();
-            $pk->address = $this->getServerAddress();
-            $pk->port = $this->getServerPort();
-
-            $player->dataPacket($pk);
-        };
-
-        if(ServerManager::getCurrentServer()->isLobby() && !$this->isLobby()) {
-            QueryQueue::submitQuery(new CheckBanQuery($player->getName()), $callback);
-            return;
-        }
-
-        $callback();
     }
 }

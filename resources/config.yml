@@ -9,4 +9,7 @@ server-list-api-key: ""
 mysql-host: ""
 mysql-user: ""
 mysql-password: ""
+
+# Secret for portal proxy
+portal-secret: ""
 ...
