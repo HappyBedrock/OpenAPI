@@ -21,34 +21,32 @@ class AuthResponsePacket extends PortalPacket {
 
     /** @var int $status */
     public $status;
-    /** @var string $reason */
-    public $reason;
 
     /**
      * @param int $status
-     * @param string $reason
      *
      * @return static
      */
-    public static function create(int $status, string $reason): self {
+    public static function create(int $status): self {
         $result = new self;
         $result->status = $status;
-        $result->reason = $reason;
 
         return $result;
     }
 
     protected function decodePayload(): void {
         $this->status = $this->getByte();
-        $this->reason = $this->getString();
     }
 
     protected function encodePayload(): void {
         $this->putByte($this->status);
-        $this->putString($this->reason);
     }
 
     public function handlePacket(): void {
-        OpenAPI::getInstance()->getLogger()->info($this->reason);
+        if($this->status === self::RESPONSE_SUCCESS) {
+            OpenAPI::getInstance()->getLogger()->info("Authentication with Portal was successful!");
+            return;
+        }
+        OpenAPI::getInstance()->getLogger()->info("An error occurred while authenticating ({$this->status})!");
     }
 }

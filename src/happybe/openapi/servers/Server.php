@@ -83,10 +83,8 @@ class Server {
                 return;
             }
 
-            $player->sendMessage("Transferring to {$this->getServerAddress()}:{$this->getServerPort()}");
-
             $pk = new TransferRequestPacket();
-            $pk->entityRuntimeId = $player->getId();
+            $pk->uuid = $player->getUniqueId();
             $pk->server = $this->getServerName();
             $pk->group = substr($this->getServerName(), 0, strpos($this->getServerName(), "-"));
 
