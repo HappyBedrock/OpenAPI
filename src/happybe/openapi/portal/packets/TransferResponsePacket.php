@@ -32,13 +32,17 @@ class TransferResponsePacket extends PortalPacket {
     public function decodePayload() {
         $this->uuid = $this->getUUID();
         $this->status = $this->getByte();
-        $this->reason = $this->getString();
+        if($this->status == self::RESPONSE_ERROR) {
+            $this->reason = $this->getString();
+        }
     }
 
     public function encodePayload() {
         $this->putUUID($this->uuid);
         $this->putByte($this->status);
-        $this->putString($this->reason);
+        if($this->status == self::RESPONSE_ERROR) {
+            $this->putString($this->reason);
+        }
     }
 
     public function handlePacket(): void {
