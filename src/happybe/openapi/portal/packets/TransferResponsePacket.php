@@ -29,7 +29,7 @@ class TransferResponsePacket extends PortalPacket {
     /** @var string $reason */
     public $reason;
 
-    public function decodePayload() {
+    protected function decodePayload() {
         $this->uuid = $this->getUUID();
         $this->status = $this->getByte();
         if($this->status == self::RESPONSE_ERROR) {
@@ -37,7 +37,7 @@ class TransferResponsePacket extends PortalPacket {
         }
     }
 
-    public function encodePayload() {
+    protected function encodePayload() {
         $this->putUUID($this->uuid);
         $this->putByte($this->status);
         if($this->status == self::RESPONSE_ERROR) {

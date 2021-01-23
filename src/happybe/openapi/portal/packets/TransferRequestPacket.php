@@ -21,13 +21,13 @@ class TransferRequestPacket extends PortalPacket {
     /** @var string $server */
     public $server;
 
-    public function decodePayload() {
+    protected function decodePayload() {
         $this->uuid = $this->getUUID();
         $this->group = $this->getString();
         $this->server = $this->getString();
     }
 
-    public function encodePayload() {
+    protected function encodePayload() {
         $this->putUUID($this->uuid);
         $this->putString($this->group);
         $this->putString($this->server);

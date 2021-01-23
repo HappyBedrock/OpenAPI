@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace happybe\openapi\portal\packets;
 
-use happybe\openapi\OpenAPI;
-
 /**
  * Class AuthRequestPacket
  * @package happybe\openapi\portal\packets

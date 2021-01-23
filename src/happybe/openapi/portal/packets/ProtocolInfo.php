@@ -9,9 +9,10 @@ namespace happybe\openapi\portal\packets;
  * @package happybe\openapi\portal\packets
  */
 interface ProtocolInfo {
-
     public const AUTH_REQUEST_PACKET = 0xd0;
     public const AUTH_RESPONSE_PACKET = 0xd1;
     public const TRANSFER_REQUEST_PACKET = 0xd2;
     public const TRANSFER_RESPONSE_PACKET = 0xd3;
+    public const PLAYER_INFO_REQUEST_PACKET = 0xd4;
+    public const PLAYER_INFO_RESPONSE_PACKET = 0xd5;
 }

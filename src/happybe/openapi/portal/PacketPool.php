@@ -6,6 +6,8 @@ namespace happybe\openapi\portal;
 
 use happybe\openapi\portal\packets\AuthRequestPacket;
 use happybe\openapi\portal\packets\AuthResponsePacket;
+use happybe\openapi\portal\packets\PlayerInfoRequestPacket;
+use happybe\openapi\portal\packets\PlayerInfoResponsePacket;
 use happybe\openapi\portal\packets\PortalPacket;
 use happybe\openapi\portal\packets\TransferRequestPacket;
 use happybe\openapi\portal\packets\TransferResponsePacket;
@@ -26,6 +28,8 @@ class PacketPool {
         self::registerPacket(new AuthResponsePacket());
         self::registerPacket(new TransferRequestPacket());
         self::registerPacket(new TransferResponsePacket());
+        self::registerPacket(new PlayerInfoRequestPacket());
+        self::registerPacket(new PlayerInfoResponsePacket());
     }
 
     /**
