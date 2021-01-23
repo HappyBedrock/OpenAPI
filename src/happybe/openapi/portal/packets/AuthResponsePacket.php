@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace happybe\openapi\portal\packets;
 
-use happybe\openapi\OpenAPI;
+use happybe\openapi\portal\PortalPacketHandler;
 
 /**
  * Class AuthResponsePacket
@@ -43,10 +43,6 @@ class AuthResponsePacket extends PortalPacket {
     }
 
     public function handlePacket(): void {
-        if($this->status === self::RESPONSE_SUCCESS) {
-            OpenAPI::getInstance()->getLogger()->info("Authentication with Portal was successful!");
-            return;
-        }
-        OpenAPI::getInstance()->getLogger()->info("An error occurred while authenticating ({$this->status})!");
+        PortalPacketHandler::handleAuthResponsePacket($this);
     }
 }

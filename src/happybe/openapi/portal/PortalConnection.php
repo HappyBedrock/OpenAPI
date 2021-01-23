@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace happybe\openapi\portal;
 
+use happybe\openapi\event\PortalPacketReceiveEvent;
 use happybe\openapi\OpenAPI;
 use happybe\openapi\portal\packets\PortalPacket;
 use happybe\openapi\portal\thread\PortalThread;
@@ -43,6 +44,8 @@ class PortalConnection {
                 if ($packet instanceof PortalPacket) {
                     $packet->decode();
                     $packet->handlePacket();
+
+                    (new PortalPacketReceiveEvent($packet))->call();
                 }
             }
         });

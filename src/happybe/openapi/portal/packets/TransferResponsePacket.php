@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace happybe\openapi\portal\packets;
 
 use happybe\openapi\OpenAPI;
+use happybe\openapi\portal\PortalPacketHandler;
 use pocketmine\utils\UUID;
 
 /**
@@ -27,7 +28,7 @@ class TransferResponsePacket extends PortalPacket {
     /** @var int $status */
     public $status;
     /** @var string $reason */
-    public $reason;
+    public $reason = "";
 
     protected function decodePayload() {
         $this->uuid = $this->getUUID();
@@ -46,8 +47,6 @@ class TransferResponsePacket extends PortalPacket {
     }
 
     public function handlePacket(): void {
-        if($this->status != self::RESPONSE_SUCCESS) {
-            OpenAPI::getInstance()->getLogger()->info("Error [{$this->status}] whilst transferring player {$this->uuid->toString()}: {$this->reason}");
-        }
+        PortalPacketHandler::handleTransferResponsePacket($this);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace happybe\openapi\portal\packets;
 
+use happybe\openapi\portal\PortalPacketHandler;
 use pocketmine\utils\UUID;
 
 /**
@@ -40,9 +41,8 @@ class PlayerInfoResponsePacket extends PortalPacket {
         $this->putString($this->address);
     }
 
-    /**
-     * Should be handled by some event
-     * todo - add that feature
-     */
-    public function handlePacket(): void {}
+
+    public function handlePacket(): void {
+        PortalPacketHandler::handlePlayerInfoResponsePacket($this);
+    }
 }
