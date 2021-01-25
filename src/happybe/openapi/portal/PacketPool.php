@@ -11,8 +11,6 @@ use happybe\openapi\portal\packets\PlayerInfoResponsePacket;
 use happybe\openapi\portal\packets\PortalPacket;
 use happybe\openapi\portal\packets\TransferRequestPacket;
 use happybe\openapi\portal\packets\TransferResponsePacket;
-use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\utils\Binary;
 
 /**
  * Class PacketPool
@@ -52,9 +50,11 @@ class PacketPool {
      * @return PortalPacket|null
      */
     public static function getPacketByBuffer(string $buffer):? PortalPacket {
-        $offset = 0;
-        $pk = self::getPacket(Binary::readUnsignedVarInt($buffer, $offset) & DataPacket::PID_MASK);
-        $pk->setBuffer($buffer, $offset);
+        $b1 = ord($buffer[0]);
+        $b2 = ord($buffer[1]);
+
+        $pk = self::getPacket($b1 | $b2 << 8);
+        $pk->setBuffer($buffer, 2);
 
         return $pk;
     }
