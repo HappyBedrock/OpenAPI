@@ -130,10 +130,10 @@ class OpenAPI extends PluginBase implements Listener {
      * @param PlayerQuitEvent $event
      */
     public function onQuit(PlayerQuitEvent $event) {
-        ScoreboardBuilder::removeScoreBoard($event->getPlayer());
         TableCache::handleQuit($event->getPlayer());
         BossBarBuilder::removeBossBar($event->getPlayer());
         PartyManager::handleQuit($event->getPlayer());
+        ScoreboardBuilder::removeScoreBoard($event->getPlayer());
     }
 
     /**

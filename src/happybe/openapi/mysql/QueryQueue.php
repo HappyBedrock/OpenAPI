@@ -36,6 +36,7 @@ class QueryQueue {
         $callable = self::$callbacks[spl_object_hash($query)] ?? null;
         if(is_callable($callable)) {
             $callable($query);
+            unset(self::$callbacks[spl_object_hash($query)]);
         }
     }
 }

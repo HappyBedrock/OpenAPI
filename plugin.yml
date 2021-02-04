@@ -17,25 +17,26 @@ permissions:
         default: op
         description: Permissions for Moderators
         children:
-          happybe.helper: # Yes, helper hasn't Bedrock rank permissions
-            default: op
-            description: Permissions for Helpers
           happybe.builder:
             default: op
             description: Permissions for Builders
             children:
-              happybe.youtube:
+              happybe.helper: # Yes, helper hasn't Bedrock rank permissions
                 default: op
-                description: Permissions for people with YOUTUBE rank
+                description: Permissions for Helpers
                 children:
-                  happybe.bedrock:
+                  happybe.youtube:
                     default: op
-                    description: Permissions for people with BEDROCK rank
+                    description: Permissions for people with YOUTUBE rank
                     children:
-                      happybe.mvp:
+                      happybe.bedrock:
                         default: op
-                        description: Permissions for people with MVP rank
+                        description: Permissions for people with BEDROCK rank
                         children:
-                          happybe.vip:
+                          happybe.mvp:
                             default: op
-                            description: Permissions for people with VIP
+                            description: Permissions for people with MVP rank
+                            children:
+                              happybe.vip:
+                                default: op
+                                description: Permissions for people with VIP
