@@ -89,7 +89,7 @@ class Party {
             } else {
                 QueryQueue::submitQuery(new CheckBanQuery($member->getName()), function (CheckBanQuery $query) use ($server, $member) {
                     if($query->banned) {
-                        $member->sendMessage("§9Party> §cYou were suspended from our game servers.");
+                        $member->sendMessage("§l§o§ePARTY§r§f: §bYou were suspended from our game servers.");
                         $this->removeMember($member);
                         return;
                     }

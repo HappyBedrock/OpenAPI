@@ -21,7 +21,7 @@ permissions:
             default: op
             description: Permissions for Builders
             children:
-              happybe.helper: # Yes, helper hasn't Bedrock rank permissions
+              happybe.helper:
                 default: op
                 description: Permissions for Helpers
                 children:

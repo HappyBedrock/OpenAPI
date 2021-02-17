@@ -18,7 +18,7 @@ class Stats {
     public static function addExperience(Player $player, int $experience) {
         QueryQueue::submitQuery(new AddExperienceQuery($player->getName(), $experience), function (AddExperienceQuery $query) use ($player) {
             if($query->levelUp && ($player->isOnline())) {
-                $player->sendMessage("§9HappyBedrock> §a§lLEVEL UP! §r§aCurrent level: {$query->newLevel}!");
+                $player->sendMessage("§l§o§eHAPPYBEDROCK§r§f: §b§lLEVEL UP! §r§aCurrent level: {$query->newLevel}!");
                 $player->namedtag->setInt("HappyBedrockLevel", $query->newLevel);
             }
         });

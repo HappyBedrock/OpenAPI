@@ -78,8 +78,8 @@ class Server {
                 $until = $this->getTimeName((int)$query->banData["Time"]);
                 $reason = $query->banData["Reason"];
 
-                $player->sendMessage("§9Transfer> §cYou aren't permitted to play on our game servers.");
-                $player->sendMessage("§9Ban> §6You are banned by {$admin} until {$until} for {$reason}.");
+                $player->sendMessage("§l§o§eTRANSFER§r§f: §bYou aren't permitted to play on our game servers.");
+                $player->sendMessage("§l§o§eBAN§r§f: §bYou are banned by {$admin} until {$until} for {$reason}.");
                 return;
             }
 
