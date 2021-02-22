@@ -10,7 +10,7 @@ use pocketmine\network\mcpe\protocol\SpawnParticleEffectPacket;
 
 /**
  * Class CustomParticle
- * @package bedrockplay\playerparticles\particle
+ * @package happybe\openapi\particles
  */
 class CustomParticle extends Particle {
 

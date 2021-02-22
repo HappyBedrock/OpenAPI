@@ -33,10 +33,14 @@ permissions:
                         default: op
                         description: Permissions for people with BEDROCK rank
                         children:
-                          happybe.mvp:
+                          happybe.mvp.plus:
                             default: op
-                            description: Permissions for people with MVP rank
+                            description: Permissions for people with MVP+
                             children:
-                              happybe.vip:
+                              happybe.mvp:
                                 default: op
-                                description: Permissions for people with VIP
+                                description: Permissions for people with MVP rank
+                                children:
+                                  happybe.vip:
+                                    default: op
+                                    description: Permissions for people with VIP

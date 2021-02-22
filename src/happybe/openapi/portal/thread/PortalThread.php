@@ -94,11 +94,11 @@ class PortalThread extends Thread {
                     socket_close($socket);
                     $socket = $this->connectToSocketServer();
                 }
-                elseif(!$read) {
-                    if(is_int($err = socket_last_error($socket)) && $err != 11) {
-                        echo "[OpenAPI] Error whilst reading socket ($err): ".socket_strerror($err)."\n";
-                    }
-                }
+//                elseif(!$read) {
+//                    if(is_int($err = socket_last_error($socket)) && $err != 11) {
+//                        echo "[OpenAPI] Error whilst reading socket ($err): ".socket_strerror($err)."\n";
+//                    }
+//                }
                 if($read !== false) {
                     if (strlen($read) === 4) {
                         $length = Binary::readLInt($read);

@@ -30,16 +30,17 @@ class RankDatabase {
     public static function init() {
         $ranks = [
             // Staff
-            new Rank("Owner", "§6§l", ["happybe.operator", "pocketmine.command.gamemode", "pocketmine.command.teleport", "pocketmine.command.kick"]),
-            new Rank("Developer", "§6§l", ["happybe.operator"]),
-            new Rank("Admin", "§6§l", ["happybe.operator", "pocketmine.command.teleport", "pocketmine.command.kick"]),
-            new Rank("Mod", "§e§l", ["happybe.moderator", "pocketmine.command.teleport", "pocketmine.command.kick"]),
-            new Rank("Helper", "§e§l", ["happybe.helper", "pocketmine.command.kick"]),
-            new Rank("Builder", "§e§l", ["happybe.builder"]),
-            // Buyable ranks
-            new Rank("Bedrock", "§9§l", ["happybe.bedrock"]),
-            new Rank("MVP", "§3§l", ["happybe.mvp"]),
-            new Rank("VIP", "§3§l", ["happybe.vip"]),
+            new Rank("Owner", "§6§lOWNER", ["happybe.operator", "pocketmine.command.gamemode", "pocketmine.command.teleport", "pocketmine.command.kick"]),
+            new Rank("Developer", "§6§lDEVELOPER", ["happybe.operator"]),
+            new Rank("Admin", "§6§lADMIN", ["happybe.operator", "pocketmine.command.teleport", "pocketmine.command.kick"]),
+            new Rank("Mod", "§e§lMOD", ["happybe.moderator", "pocketmine.command.teleport", "pocketmine.command.kick"]),
+            new Rank("Helper", "§e§lHELPER", ["happybe.helper", "pocketmine.command.kick"]),
+            new Rank("Builder", "§e§lBUILDER", ["happybe.builder"]),
+            // Purchasable ranks
+            new Rank("Bedrock", "§cBED§bRO§aCK", ["happybe.bedrock"]),
+            new Rank("MVP+", "§3§lMVP§b+", ["happybe.mvp.plus"]),
+            new Rank("MVP", "§3§lMVP", ["happybe.mvp"]),
+            new Rank("VIP", "§3§lVIP", ["happybe.vip"]),
             // Gettable ranks
             new Rank("YouTube", "§c§l", ["happybe.youtube"]),
             new Rank("Voter", "§b§l", ["happybe.voter"]),

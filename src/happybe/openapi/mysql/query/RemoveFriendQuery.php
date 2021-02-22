@@ -57,10 +57,7 @@ class RemoveFriendQuery extends AsyncQuery {
             $key = array_search($friend, $friends);
             unset($friends[$key]);
 
-            $mysqli->query("UPDATE HB_Friends SET HB_Friends='".implode(",", $friends)."' WHERE Name='{$player}';");
-            if($mysqli->error) {
-                echo "Encountered error while removing friend - {$mysqli->error}\n";
-            }
+            $mysqli->query("UPDATE HB_Friends SET Friends='".implode(",", $friends)."' WHERE Name='{$player}';");
         }
     }
 }

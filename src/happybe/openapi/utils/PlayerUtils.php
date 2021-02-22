@@ -18,7 +18,7 @@ trait PlayerUtils {
      * @param string $color
      */
     public function updateNameTag(Player $player, string $color = "§e") {
-        $player->setNameTag(RankDatabase::getPlayerRank($player)->getFormatForNameTag() . $color . $player->getName() . "\n§b" . DeviceData::getDeviceName($player));
+        $player->setNameTag(RankDatabase::getPlayerRank($player)->getDisplayFormat() . "§r" . $color . $player->getName() . "\n§b" . DeviceData::getDeviceName($player));
     }
 
     /**
