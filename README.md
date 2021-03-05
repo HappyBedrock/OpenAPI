@@ -17,7 +17,7 @@
 ```php
 /** @var \pocketmine\Player $player */
 \happybe\openapi\economy\Economy::getCoins($player, function(int $amount) use ($player) {
-    $player->sendMessage("§9Account> §aCurrently you have $amount coins!");
+    $player->sendMessage("§l§o§eACCOUNT§r§f: §bCurrently you have $amount coins!");
 });
 ```
 
@@ -36,5 +36,5 @@ if($server->isOnline()) {
 ```php
 /** @var \pocketmine\Player $player */
 $rank = \happybe\openapi\ranks\RankDatabase::getPlayerRank($player);
-$player->sendMessage("§9Account> §aYour rank: " . $rank->getName());
+$player->sendMessage("§l§o§eACCOUNT§r§f: §bYour rank: " . $rank->getName());
 ```

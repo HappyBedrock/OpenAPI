@@ -10,6 +10,8 @@ use happybe\openapi\mysql\query\ServerSyncQuery;
 use happybe\openapi\mysql\query\UpdateRowQuery;
 use happybe\openapi\mysql\QueryQueue;
 use happybe\openapi\OpenAPI;
+use happybe\openapi\portal\PacketPool;
+use happybe\openapi\portal\PortalConnection;
 use mysqli;
 use pocketmine\scheduler\ClosureTask;
 
@@ -29,10 +31,13 @@ class ServerManager {
     /** @var Server $currentServer */
     private static $currentServer;
 
+    /** @var PortalConnection $portalConnection */
+    private static $portalConnection;
+
     public static function init() {
         /** @var string $currentServerName */
         $currentServerName = OpenAPI::getInstance()->getConfig()->get("current-server-name");
-        self::updateServerData($currentServerName, "null", $currentServerPort = \pocketmine\Server::getInstance()->getConfigInt("server-port"));
+        self::updateServerData($currentServerName, "null", "172.18.0.1", $currentServerPort = \pocketmine\Server::getInstance()->getConfigInt("server-port"));
         QueryQueue::submitQuery(new LazyRegisterServerQuery($currentServerName, $currentServerPort));
 
         self::$currentServer = self::getServer($currentServerName);
@@ -47,6 +52,7 @@ class ServerManager {
                     ServerManager::updateServerData(
                         (string)$row["ServerName"],
                         (string)$row["ServerAlias"],
+                        (string)$row["ServerAddress"],
                         (int)$row["ServerPort"],
                         (int)$row["OnlinePlayers"],
                         (bool)($row["IsOnline"] == "1"),
@@ -55,28 +61,34 @@ class ServerManager {
                 }
             });
         }), self::REFRESH_TICKS);
+
+        PacketPool::init();
+        self::$portalConnection = new PortalConnection();
     }
 
     public static function save() {
         $query = new UpdateRowQuery(["IsOnline" => 0, "OnlinePlayers" => 0], "ServerName", self::getCurrentServer()->getServerName(), "Servers");
         $query->query(new mysqli(DatabaseData::getHost(), DatabaseData::getUser(), DatabaseData::getPassword(), DatabaseData::DATABASE));
+
+        self::getPortalConnection()->close();
     }
 
     /**
      * @param string $serverName
      * @param string $serverAlias
+     * @param string $serverAddress
      * @param int $serverPort
      * @param int $onlinePlayers
      * @param bool $isOnline
      * @param bool $isWhitelisted
      */
-    public static function updateServerData(string $serverName, string $serverAlias, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
+    public static function updateServerData(string $serverName, string $serverAlias, string $serverAddress, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
         if(!isset(self::$servers[$serverName])) {
             if(strpos($serverName, "-") === false) {
                 return;
             }
 
-            self::$servers[$serverName] = $server = new Server($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+            self::$servers[$serverName] = $server = new Server($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
             OpenAPI::getInstance()->getLogger()->info("Registered new server ($serverName)");
 
             $groupName = substr($serverName, 0, strpos($serverName , "-"));
@@ -92,7 +104,7 @@ class ServerManager {
             return;
         }
 
-        self::$servers[$serverName]->update($serverName, $serverAlias, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+        self::$servers[$serverName]->update($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
     }
 
     /**
@@ -109,6 +121,13 @@ class ServerManager {
         }
 
         return $online;
+    }
+
+    /**
+     * @return ServerGroup
+     */
+    public static function getCurrentServerGroup(): ServerGroup {
+        return self::getServerGroup(substr(self::getCurrentServer()->getServerName(), 0, strpos(self::getCurrentServer()->getServerName(), "-")));
     }
 
     /**
@@ -139,5 +158,12 @@ class ServerManager {
      */
     public static function getCurrentServer(): Server {
         return self::$currentServer;
+    }
+
+    /**
+     * @return PortalConnection
+     */
+    public static function getPortalConnection(): PortalConnection {
+        return self::$portalConnection;
     }
 }

@@ -28,6 +28,8 @@ class LazyRegisterQuery extends AsyncQuery {
     public $row;
     /** @var string|array $partiesRow */
     public $partiesRow;
+    /** @var string|array $friendsRow */
+    public $friendsRow;
 
     /**
      * LazyRegisterQuery constructor.
@@ -49,15 +51,13 @@ class LazyRegisterQuery extends AsyncQuery {
                 $mysqli->query("INSERT INTO {$table} (Name) VALUES ('{$this->player}');");
             }
         }
-
         $this->row = serialize($mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_Values WHERE Name='{$this->player}';")->fetch_assoc());
+
         $query = $mysqli->query("SELECT * FROM HB_Parties WHERE FIND_IN_SET('{$this->player}', Members) or Owner='{$this->player}';");
-        if($query->num_rows === null) {
-            $this->partiesRow = serialize([]);
-        }
-        else {
-            $this->partiesRow = serialize($query->fetch_assoc());
-        }
+        $this->partiesRow = $query->num_rows === 0 ? serialize([]) : serialize($query->fetch_assoc());
+
+        $query = $mysqli->query("SELECT * FROM HB_Friends WHERE Name='{$this->player}';");
+        $this->friendsRow = $query->num_rows === 0 ? serialize([]) : serialize($query->fetch_assoc());
     }
 
     /**
@@ -73,6 +73,8 @@ class LazyRegisterQuery extends AsyncQuery {
     public function onCompletion(Server $server) {
         $this->row = (array)unserialize((string)$this->row);
         $this->partiesRow = (array)unserialize((string)$this->partiesRow);
+        $this->friendsRow = (array)unserialize((string)$this->friendsRow);
+
         parent::onCompletion($server);
     }
 }

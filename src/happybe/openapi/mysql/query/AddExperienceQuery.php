@@ -51,8 +51,7 @@ class AddExperienceQuery extends AsyncQuery {
         if($currentExperience + $this->experience >= $requiredExperience) {
             $this->levelUp = true;
             $this->newLevel = $currentLevel + 1;
-
-            $mysqli->query("UPDATE HB_Values SET Experience='" . (($this->experience + $currentExperience) - $requiredExperience) . "', Level='{$this->newLevel}' WHERE Name='{$this->player};';");
+            $mysqli->query($query ="UPDATE HB_Values SET Experience='" . (($this->experience + $currentExperience) - $requiredExperience) . "',Level='{$this->newLevel}' WHERE Name='{$this->player}';");
             return;
         }
 

@@ -41,18 +41,18 @@ class FriendsManager {
         $form->setCustomData($player->getName());
         $form->setAdvancedCallable(function (Player $friend, $data, ModalForm $form) {
             if($data !== true) {
-                $friend->sendMessage("§9Friends> §aFriend request cancelled!");
+                $friend->sendMessage("§l§o§eFRIENDS§r§f: §bFriend request cancelled!");
                 return;
             }
 
             $player = Server::getInstance()->getPlayerExact($form->getCustomData());
             if($player === null) {
-                $friend->sendMessage("§9Friends> §cFriend request expired (player left the game).");
+                $friend->sendMessage("§l§o§eFRIENDS§r§f: §bFriend request expired (player left the game).");
                 return;
             }
 
-            $player->sendMessage("§9Friends> §a{$friend->getName()} accepted your friend request!");
-            $friend->sendMessage("§9Friends> §aFriend request accepted!");
+            $player->sendMessage("§l§o§eFRIENDS§r§f: §b{$friend->getName()} accepted your friend request!");
+            $friend->sendMessage("§l§o§eFRIENDS§r§f: §bFriend request accepted!");
 
             FriendsManager::setFriends($player, $friend);
         });

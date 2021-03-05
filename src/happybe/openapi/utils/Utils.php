@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace happybe\openapi\utils;
 
-use happybe\openapi\OpenAPI;
 use Exception;
+use happybe\openapi\OpenAPI;
 
 /**
  * Class Utils

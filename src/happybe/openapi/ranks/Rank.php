@@ -4,88 +4,59 @@ declare(strict_types=1);
 
 namespace happybe\openapi\ranks;
 
-/**
- * Class Rank
- * @package happybe\openapi\ranks
- */
 class Rank {
 
-    /** @var string $name */
+    /** @var string */
     public $name;
 
-    /** @var string $chatFormat */
-    public $chatFormatting;
-    /** @var array $permissions */
+    /** @var string */
+    public $displayFormat;
+    /** @var array */
     public $permissions;
-    /** @var bool $isVisible */
+    /** @var bool */
     public $isVisible;
 
-    /**
-     * Rank constructor.
-     *
-     * @param string $name
-     * @param string $chatFormatting
-     * @param array $permissions
-     * @param bool $isVisible
-     */
-    public function __construct(string $name, string $chatFormatting, array $permissions = [], bool $isVisible = true) {
+    public function __construct(string $name, string $displayFormat, array $permissions = [], bool $isVisible = true) {
         $this->name = $name;
-        $this->chatFormatting = $chatFormatting;
+        $this->displayFormat = $displayFormat;
         $this->permissions = $permissions;
         $this->isVisible = $isVisible;
     }
 
     /**
-     * Returns raw rank format
-     *
-     * @return string
+     * Returns raw rank format (For example: 'Guest' or 'Owner')
      */
     public function getName(): string {
         return $this->name;
     }
 
     /**
-     * Returns colors used for the rank
-     *
-     * @return string
-     */
-    public function getChatFormatting(): string {
-        return $this->chatFormatting;
-    }
-
-    /**
      * Returns permissions whose player has with this rank
-     *
-     * @return array
      */
     public function getPermissions(): array {
         return $this->permissions;
     }
 
     /**
-     * Format for chat (expample: "OWNER " or "")
-     *
-     * @return string
+     * Returns displayed format (For example '' for Guest or '§l§6OWNER' for owner)
+     */
+    public function getDisplayFormat(): string {
+        return $this->displayFormat;
+    }
+
+    /**
+     * @deprecated
+     * @link getDisplayFormat()
      */
     public function getFormatForChat(): string {
-        return $this->isVisible ? $this->getChatFormatting() . strtoupper($this->getName()) . "§r " : "";
+        return $this->getDisplayFormat();
     }
 
     /**
-     * Format for display eg. scoreboard (example: "Owner")
-     *
-     * @return string
-     */
-    public function getFormatForDisplay(): string {
-        return $this->getName();
-    }
-
-    /**
-     * Format for player's nametag
-     *
-     * @return string
+     * @deprecated
+     * @link getDisplayFormat()
      */
     public function getFormatForNameTag(): string {
-        return $this->isVisible ? $this->getChatFormatting() . strtoupper($this->getName()) . "§r " : "";
+        return $this->getDisplayFormat();
     }
 }

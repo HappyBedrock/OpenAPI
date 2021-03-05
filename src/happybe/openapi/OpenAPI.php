@@ -6,6 +6,7 @@ namespace happybe\openapi;
 
 use happybe\openapi\bossbar\BossBarBuilder;
 use happybe\openapi\event\LoginQueryReceiveEvent;
+use happybe\openapi\form\EntityForm;
 use happybe\openapi\lang\LanguageManager;
 use happybe\openapi\mysql\DatabaseData;
 use happybe\openapi\mysql\query\ConnectQuery;
@@ -17,24 +18,19 @@ use happybe\openapi\ranks\RankDatabase;
 use happybe\openapi\scoreboard\ScoreboardBuilder;
 use happybe\openapi\servers\ServerManager;
 use happybe\openapi\utils\DeviceData;
-use happybe\openapi\utils\Utils;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\event\server\UpdateNotifyEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\network\mcpe\protocol\NpcRequestPacket;
 use pocketmine\network\mcpe\RakLibInterface;
 use pocketmine\plugin\PluginBase;
 
-/**
- * Class OpenAPI
- * @package happybe\openapi
- */
 class OpenAPI extends PluginBase implements Listener {
 
-    /** @var OpenAPI $instance */
+    /** @var OpenAPI */
     private static $instance;
 
     public function onEnable() {
@@ -93,6 +89,23 @@ class OpenAPI extends PluginBase implements Listener {
         if($packet instanceof LoginPacket) {
             DeviceData::saveDevice($packet->username, $packet->clientData["DeviceOS"]);
         }
+        if($packet instanceof NpcRequestPacket) {
+            $entity = $this->getServer()->findEntity($packet->entityRuntimeId);
+            if($entity === null) {
+                return;
+            }
+
+            $form = EntityForm::getFormByEntity($entity);
+            if($form === null) {
+                return;
+            }
+
+            switch ($packet->requestType) {
+                case $packet->actionType:
+                    $form->handleResponse($event->getPlayer(), $packet->actionType);
+                    break;
+            }
+        }
     }
 
     /**
@@ -102,8 +115,7 @@ class OpenAPI extends PluginBase implements Listener {
         $player = $event->getPlayer();
 
         QueryQueue::submitQuery(new LazyRegisterQuery($player->getName()), function (LazyRegisterQuery $query) use ($player) {
-            RankDatabase::savePlayerRank($player, $query->row["Rank"] ?? "ReadError");
-            RankDatabase::saveHasVoted($player, (int)($query->row["VoteDate"] ?? ""), ($query->row["HasVoted"] ?? "0") == "1");
+            RankDatabase::setPlayerRank($player, $query->row["Rank"] ?? "ReadError");
             LanguageManager::saveLanguage($player, $query->row["Language"] ?? "ReadError");
             PartyManager::handleLoginQuery($player, $query);
 
@@ -132,21 +144,10 @@ class OpenAPI extends PluginBase implements Listener {
      * @param PlayerQuitEvent $event
      */
     public function onQuit(PlayerQuitEvent $event) {
-        ScoreboardBuilder::removeScoreBoard($event->getPlayer());
         TableCache::handleQuit($event->getPlayer());
         BossBarBuilder::removeBossBar($event->getPlayer());
         PartyManager::handleQuit($event->getPlayer());
-    }
-
-    /**
-     * @param UpdateNotifyEvent $event
-     */
-    public function onUpdate(UpdateNotifyEvent $event) {
-//        $updater = $event->getUpdater();
-//        file_put_contents($this->getServer()->getDataPath() . "PocketMine-MP.phar", Utils::readURL($updater->getUpdateInfo()["download_url"]));
-//
-//        $this->getLogger()->notice("Restarting server due to update...");
-//        $this->getServer()->shutdown();
+        ScoreboardBuilder::removeScoreBoard($event->getPlayer());
     }
 
     /**

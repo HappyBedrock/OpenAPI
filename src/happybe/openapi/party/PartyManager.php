@@ -15,7 +15,6 @@ use happybe\openapi\mysql\query\UpdateRowQuery;
 use happybe\openapi\mysql\QueryQueue;
 use happybe\openapi\OpenAPI;
 use happybe\openapi\servers\ServerManager;
-use pocketmine\item\Bread;
 use pocketmine\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
@@ -49,7 +48,7 @@ class PartyManager {
             }));
 
             if(count($friends) === 0) {
-                $player->sendMessage("§9Parties> §cCannot create party - there aren't any online friends on the current server without a party.");
+                $player->sendMessage("§l§o§ePARTIES§r§f: §bCannot create party - there aren't any online friends on the current server without a party.");
                 return;
             }
 
@@ -75,7 +74,7 @@ class PartyManager {
                     if($data[$i] === true) {
                         $friend = Server::getInstance()->getPlayerExact($friends[$i]);
                         if($friend === null) {
-                            $player->sendMessage("§9Parties> §6Your friend {$friends[$i]} is no longer online.");
+                            $player->sendMessage("§l§o§ePARTIES§r§f: §bYour friend {$friends[$i]} is no longer online.");
                             continue;
                         }
 
@@ -84,7 +83,7 @@ class PartyManager {
                     }
                 }
 
-                $player->sendMessage("§9Party> §aParty created ($j invites sent)!");
+                $player->sendMessage("§l§o§ePARTY§r§f: §bParty created ($j invites sent)!");
 
             });
 
@@ -103,19 +102,19 @@ class PartyManager {
 
         $form->setCallable(function (Player $friend, $data) use ($owner) {
             if($owner === null || !$owner->isOnline()) {
-                $friend->sendMessage("§9Parties> §cInvitation expired.");
+                $friend->sendMessage("§l§o§ePARTIES§r§f: §bInvitation expired.");
                 return;
             }
 
             $party = self::$parties[$owner->getName()] ?? null;
             if($party === null) {
-                $friend->sendMessage("§9Parties> §cParty doesn't exist anymore.");
+                $friend->sendMessage("§l§o§ePARTIES§r§f: §bParty doesn't exist anymore.");
                 return;
             }
 
             if($data === true) {
                 $party->addMember($friend);
-                $party->broadcastMessage("§9Party> §a{$friend->getName()} joined the party!");
+                $party->broadcastMessage("§l§o§ePARTY§r§f: §b{$friend->getName()} joined the party!");
             }
         });
 
@@ -146,7 +145,7 @@ class PartyManager {
     public static function destroyParty(Party $party) {
         QueryQueue::submitQuery(new DestroyPartyQuery($party->getOwner()->getName()));
         foreach ($party->getMembers() as $member) {
-            $member->sendMessage("§9Party> §6{$party->getOwner()->getName()} has destroyed his party.");
+            $member->sendMessage("§l§o§ePARTY§r§f: §b{$party->getOwner()->getName()} has destroyed his party.");
         }
 
         unset(self::$parties[$party->getOwner()->getName()]);
@@ -196,7 +195,7 @@ class PartyManager {
             if($ownerPlayer === null || (!$ownerPlayer->isOnline())) {
                 QueryQueue::submitQuery(new DestroyPartyQuery($owner));
                 foreach (self::$unloggedPartySessions[$owner] as $member) {
-                    $member->sendMessage("§9Party> §cParty destroyed (It's owner left the game)");
+                    $member->sendMessage("§l§o§ePARTY§r§f: §bParty destroyed (It's owner left the game)");
                 }
 
                 if(is_callable($callback)) {
@@ -234,7 +233,7 @@ class PartyManager {
             }
 
             if(count($whoseLeftTheGame) > 0) {
-                $party->broadcastMessage("§9Party> §c" . count($whoseLeftTheGame) . " party members left the game.");
+                $party->broadcastMessage("§l§o§ePARTY§r§f: §b" . count($whoseLeftTheGame) . " party members left the game.");
             }
 
             if(is_callable($callback)) {
@@ -290,7 +289,7 @@ class PartyManager {
         }
 
         if($party->getOwner()->getName() == $player->getName()) {
-            $party->broadcastMessage("§9Party> §c{$player->getName()} left the server.");
+            $party->broadcastMessage("§l§o§ePARTY§r§f: §b{$player->getName()} left the server.");
             self::destroyParty($party);
             return;
         }
