@@ -9,30 +9,19 @@ use happybe\openapi\mysql\DatabaseData;
 use mysqli;
 use pocketmine\Server;
 
-/**
- * Class FetchRowQuery
- * @package happybe\openapi\mysql\query
- */
 class FetchRowQuery extends AsyncQuery {
 
-    /** @var string $table */
+    /** @var string */
     public $table;
 
-    /** @var string $conditionKey */
+    /** @var string */
     public $conditionKey;
-    /** @var string $conditionValue */
+    /** @var string */
     public $conditionValue;
 
-    /** @var array|string $row */
+    /** @var array|string */
     public $row;
 
-    /**
-     * FetchRowQuery constructor.
-     *
-     * @param string $conditionKey
-     * @param string $conditionValue
-     * @param string $table
-     */
     public function __construct(string $conditionKey, string $conditionValue, string $table = "Values") {
         $this->conditionKey = $conditionKey;
         $this->conditionValue = $conditionValue;
@@ -53,8 +42,7 @@ class FetchRowQuery extends AsyncQuery {
         $this->row = "";
     }
 
-    public function onCompletion(Server $server) {
+    public function complete(Server $server): void {
         $this->row = (array)unserialize($this->row);
-        parent::onCompletion($server);
     }
 }

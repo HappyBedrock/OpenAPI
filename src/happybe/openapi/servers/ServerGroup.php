@@ -68,7 +68,7 @@ class ServerGroup {
         /** @var Server|null $targetServer */
         $targetServer = null;
         foreach ($toSort as $name => $onlinePlayers) {
-            if(!$servers[$name]->isOnline() || (!$player->hasPermission("happybe.operator") && $servers[$name]->isWhitelisted())) {
+            if(!$servers[$name]->isOnline() || (!$player->hasPermission("happybe.operator") && $servers[$name]->whitelistState())) {
                 continue;
             }
 

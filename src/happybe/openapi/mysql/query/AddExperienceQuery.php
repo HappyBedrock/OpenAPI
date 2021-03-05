@@ -7,35 +7,23 @@ namespace happybe\openapi\mysql\query;
 use happybe\openapi\mysql\AsyncQuery;
 use mysqli;
 
-/**
- * Class AddExperienceQuery
- * @package happybe\openapi\mysql\query
- */
 class AddExperienceQuery extends AsyncQuery {
 
-    /** @var string $player */
+    /** @var string */
     public $player;
-    /** @var int $experience */
+    /** @var int */
     public $experience;
 
-    /** @var bool $levelUp */
+    /** @var bool */
     public $levelUp = false;
-    /** @var int $newLevel */
+    /** @var int */
     public $newLevel = 0;
 
-    /**
-     * AddExperienceQuery constructor.
-     * @param string $player
-     * @param int $experience
-     */
     public function __construct(string $player, int $experience) {
         $this->player = $player;
         $this->experience = $experience;
     }
 
-    /**
-     * @param mysqli $mysqli
-     */
     public function query(mysqli $mysqli): void {
         $result = $mysqli->query("SELECT * FROM HB_Values WHERE Name='{$this->player}';")->fetch_assoc();
         $currentExperience = $result["Experience"] ?? null;

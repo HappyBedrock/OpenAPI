@@ -9,34 +9,21 @@ use happybe\openapi\mysql\DatabaseData;
 use mysqli;
 use pocketmine\Server;
 
-/**
- * Class ServerSyncQuery
- * @package happybe\openapi\mysql\query
- */
 class ServerSyncQuery extends AsyncQuery {
 
-    /** @var string $currentServer */
+    /** @var string */
     public $currentServer;
-    /** @var int $onlinePlayers */
+    /** @var int */
     public $onlinePlayers;
 
-    /** @var string|array $table */
+    /** @var string|array */
     public $table;
 
-    /**
-     * ServerSyncQuery constructor.
-     *
-     * @param string $currentServer
-     * @param int $onlinePlayers
-     */
     public function __construct(string $currentServer, int $onlinePlayers) {
         $this->currentServer = $currentServer;
         $this->onlinePlayers = $onlinePlayers;
     }
 
-    /**
-     * @param mysqli $mysqli
-     */
     public function query(mysqli $mysqli): void {
         $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "_Servers SET OnlinePlayers='{$this->onlinePlayers}' WHERE ServerName='{$this->currentServer}';");
         $result = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_Servers;");
@@ -49,11 +36,7 @@ class ServerSyncQuery extends AsyncQuery {
         $this->table = serialize($table);
     }
 
-    /**
-     * @param Server $server
-     */
-    public function onCompletion(Server $server) {
+    public function complete(Server $server): void {
         $this->table = unserialize((string)$this->table);
-        parent::onCompletion($server);
     }
 }

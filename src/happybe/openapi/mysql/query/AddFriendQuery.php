@@ -7,43 +7,26 @@ namespace happybe\openapi\mysql\query;
 use happybe\openapi\mysql\AsyncQuery;
 use mysqli;
 
-/**
- * Class AddFriendQuery
- * @package happybe\openapi\mysql\query
- */
 class AddFriendQuery extends AsyncQuery {
 
-    /** @var string $player */
+    /** @var string */
     public $player;
-    /** @var string $newFriend */
+    /** @var string */
     public $newFriend;
 
-    /** @var bool $changed */
+    /** @var bool */
     public $changed = false;
 
-    /**
-     * AddFriendQuery constructor.
-     * @param string $player
-     * @param string $newFriend
-     */
     public function __construct(string $player, string $newFriend) {
         $this->player = $player;
         $this->newFriend = $newFriend;
     }
 
-    /**
-     * @param mysqli $mysqli
-     */
     public function query(mysqli $mysqli): void {
         $this->addFriend($mysqli, $this->player, $this->newFriend);
         $this->addFriend($mysqli, $this->newFriend, $this->player);
     }
 
-    /**
-     * @param mysqli $mysqli
-     * @param string $player
-     * @param string $friend
-     */
     public function addFriend(mysqli $mysqli, string $player, string $friend) {
         $result = $mysqli->query("SELECT * FROM HB_Friends WHERE Name='{$player}';");
         if($result->num_rows === 0) {

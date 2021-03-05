@@ -9,41 +9,29 @@ use happybe\openapi\mysql\DatabaseData;
 use mysqli;
 use pocketmine\Server;
 
-/**
- * Class LazyRegisterQuery
- * @package happybe\openapi\mysql\query
- */
 class LazyRegisterQuery extends AsyncQuery {
 
-    /** @var array $tablesToRegister */
+    /** @var array */
     public static $tablesToRegister = [];
 
-    /** @var string $tablesToPrepare */
+    /** @var string */
     public $tablesToPrepare;
 
-    /** @var string $player */
+    /** @var string */
     public $player;
 
-    /** @var string|array $row */
+    /** @var string|array */
     public $row;
-    /** @var string|array $partiesRow */
+    /** @var string|array */
     public $partiesRow;
-    /** @var string|array $friendsRow */
+    /** @var string|array */
     public $friendsRow;
 
-    /**
-     * LazyRegisterQuery constructor.
-     * @param string $player
-     */
     public function __construct(string $player) {
         $this->tablesToPrepare = serialize(self::$tablesToRegister);
         $this->player = $player;
     }
 
-    /**
-     * @param mysqli $mysqli
-     * @return void
-     */
     public function query(mysqli $mysqli): void {
         foreach (unserialize($this->tablesToPrepare) as $table) {
             $check = $mysqli->query("SELECT Name FROM $table WHERE Name='{$this->player}';");
@@ -60,21 +48,13 @@ class LazyRegisterQuery extends AsyncQuery {
         $this->friendsRow = $query->num_rows === 0 ? serialize([]) : serialize($query->fetch_assoc());
     }
 
-    /**
-     * @param string $table
-     */
     public static function addTableToRegister(string $table) {
         self::$tablesToRegister[] = DatabaseData::TABLE_PREFIX . "_" . $table;
     }
 
-    /**
-     * @param Server $server
-     */
-    public function onCompletion(Server $server) {
+    public function complete(Server $server) {
         $this->row = (array)unserialize((string)$this->row);
         $this->partiesRow = (array)unserialize((string)$this->partiesRow);
         $this->friendsRow = (array)unserialize((string)$this->friendsRow);
-
-        parent::onCompletion($server);
     }
 }

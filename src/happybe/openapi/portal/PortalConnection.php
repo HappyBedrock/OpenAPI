@@ -12,21 +12,14 @@ use happybe\openapi\servers\ServerManager;
 use pocketmine\Server;
 use pocketmine\snooze\SleeperNotifier;
 
-/**
- * Class PortalConnection
- * @package happybe\openapi\portal
- */
 class PortalConnection {
 
     private const TCP_SOCKET_IP = "193.70.81.203"; // todo - move this to config
     private const TCP_SOCKET_PORT = 19131;
 
-    /** @var PortalThread $thread */
+    /** @var PortalThread */
     private $thread;
 
-    /**
-     * PortalConnection constructor.
-     */
     public function __construct() {
         $this->thread = new PortalThread(
             self::TCP_SOCKET_IP,
@@ -51,16 +44,10 @@ class PortalConnection {
         });
     }
 
-    /**
-     * @param PortalPacket $packet
-     */
     public function sendPacketToProxy(PortalPacket $packet) {
         $this->thread->addPacketToQueue($packet);
     }
 
-    /**
-     * Closes the thread
-     */
     public function close() {
         $this->thread->quit();
     }

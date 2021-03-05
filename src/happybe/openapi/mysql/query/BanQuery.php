@@ -8,32 +8,20 @@ use happybe\openapi\mysql\AsyncQuery;
 use happybe\openapi\mysql\DatabaseData;
 use mysqli;
 
-/**
- * Class BanQuery
- * @package happybe\openapi\mysql\query
- */
 class BanQuery extends AsyncQuery {
 
-    /** @var string $table */
+    /** @var string */
     public $table = "Bans";
 
-    /** @var string $player */
+    /** @var string */
     public $player;
-    /** @var string $admin */
+    /** @var string */
     public $admin;
-    /** @var int $time */
+    /** @var int */
     public $time;
-    /** @var string $reason */
+    /** @var string */
     public $reason;
 
-    /**
-     * BanQuery constructor.
-     *
-     * @param string $player
-     * @param string $admin
-     * @param int $time
-     * @param string $reason
-     */
     public function __construct(string $player, string $admin, int $time, string $reason) {
         $this->player = $player;
         $this->admin = $admin;
@@ -41,9 +29,6 @@ class BanQuery extends AsyncQuery {
         $this->reason = $reason;
     }
 
-    /**
-     * @param mysqli $mysqli
-     */
     public function query(mysqli $mysqli): void {
         $result = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_{$this->table} WHERE Name='{$this->player}'");
         if($result->num_rows === 0) {

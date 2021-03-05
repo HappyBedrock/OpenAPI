@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace happybe\openapi\portal\packets;
 
-use happybe\openapi\OpenAPI;
 use happybe\openapi\portal\PortalPacketHandler;
 use pocketmine\utils\UUID;
 

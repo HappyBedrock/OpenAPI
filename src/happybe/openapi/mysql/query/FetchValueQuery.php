@@ -8,30 +8,19 @@ use happybe\openapi\mysql\AsyncQuery;
 use happybe\openapi\mysql\DatabaseData;
 use mysqli;
 
-/**
- * Class FetchValueQuery
- * @package happybe\openapi\mysql\query
- */
 class FetchValueQuery extends AsyncQuery {
 
-    /** @var string $player */
+    /** @var string */
     public $player;
 
-    /** @var string $key */
+    /** @var string */
     public $key;
-    /** @var string $value */
+    /** @var string */
     public $value;
 
-    /** @var string $table */
+    /** @var string */
     public $table;
 
-    /**
-     * FetchValueQuery constructor.
-     *
-     * @param string $player
-     * @param string $key
-     * @param string|null $table
-     */
     public function __construct(string $player, string $key, ?string $table = null) {
         $this->player = $player;
         $this->key = $key;
@@ -39,9 +28,6 @@ class FetchValueQuery extends AsyncQuery {
         $this->table = DatabaseData::TABLE_PREFIX . "_" . ($table === null ? DatabaseData::DEFAULT_TABLE : $table);
     }
 
-    /**
-     * @param mysqli $mysqli
-     */
     public function query(mysqli $mysqli): void {
         $result = $mysqli->query("SELECT {$this->key} FROM {$this->table} WHERE Name='{$this->player}'");
         $row = $result->fetch_assoc();
