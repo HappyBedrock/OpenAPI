@@ -10,10 +10,6 @@ use happybe\openapi\OpenAPI;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\Player;
 
-/**
- * Class RankDatabase
- * @package happybe\openapi\ranks
- */
 class RankDatabase {
 
     public const UPDATE_NONE = 0;
@@ -24,7 +20,7 @@ class RankDatabase {
     public const UPDATE_BEDROCK_TO_MVP = 5;
     public const UPDATE_BEDROCK_TO_BEDROCK = 6;
 
-    /** @var Rank[] $ranks */
+    /** @var Rank[] */
     public static $ranks = [];
 
     public static function init() {
@@ -42,10 +38,10 @@ class RankDatabase {
             new Rank("MVP", "§3§lMVP", ["happybe.mvp"]),
             new Rank("VIP", "§3§lVIP", ["happybe.vip"]),
             // Gettable ranks
-            new Rank("YouTube", "§c§l", ["happybe.youtube"]),
-            new Rank("Voter", "§b§l", ["happybe.voter"]),
+            new Rank("YouTube", "§c§lYOUTUBE", ["happybe.youtube"]),
+            new Rank("Voter", "§b§lVOTER", ["happybe.voter"]),
             // Guest
-            new Rank("Guest", "§b§l", [], false)
+            new Rank("Guest", "", [], false)
         ];
 
         foreach ($ranks as $rank) {
@@ -53,12 +49,7 @@ class RankDatabase {
         }
     }
 
-    /**
-     * @param Player $player
-     * @param string $rank
-     * @param bool $saveToDatabase
-     */
-    public static function savePlayerRank(Player $player, string $rank, bool $saveToDatabase = false) {
+    public static function setPlayerRank(Player $player, string $rank, bool $saveToDatabase = false) {
         /** @var Rank|null $rankClass */
         $rankClass = self::$ranks[strtolower($rank)] ?? null;
         if($rankClass === null) {
@@ -83,10 +74,6 @@ class RankDatabase {
         }
     }
 
-    /**
-     * @param Player $player
-     * @param int $update
-     */
     public static function saveRankUpdate(Player $player, int $update = self::UPDATE_NONE) {
         if($player->namedtag === null) {
             $player->namedtag = new CompoundTag();
@@ -94,10 +81,6 @@ class RankDatabase {
         $player->namedtag->setInt("RankUpdate", $update);
     }
 
-    /**
-     * @param Player $player
-     * @return int
-     */
     public static function applyRankUpdate(Player $player): int {
         $update = $player->namedtag->getInt("RankUpdate");
         $player->namedtag->removeTag("RankUpdate");
@@ -105,50 +88,30 @@ class RankDatabase {
         return $update;
     }
 
-    /**
-     * @param Player $player
-     * @param int $voteTime
-     * @param bool $hasVoted
-     */
-    public static function saveHasVoted(Player $player, int $voteTime, bool $hasVoted = true) {
-        $today = (int)date("dm");
-
-        if($hasVoted && $voteTime != $today) {
-            $hasVoted = false;
-            $today = $voteTime;
-        }
-
-        if(in_array(strtolower(RankDatabase::getPlayerRank($player)->getName()), ["guest", "voter"])) {
-            if($hasVoted) {
-                RankDatabase::savePlayerRank($player, "Voter", true);
-            } else {
-                RankDatabase::savePlayerRank($player, "Guest", true);
-            }
-        }
-
-        if($hasVoted) {
-            $player->addAttachment(OpenAPI::getInstance(), "happybe.voter");
-        }
-
-        $player->namedtag->setByte("HasVoted", (int)$hasVoted);
-        QueryQueue::submitQuery(new UpdateRowQuery(["HasVoted" => $hasVoted, "VoteDate" => $today], "Name", $player->getName()));
+    public static function saveVoteTime(Player $player) {
+        QueryQueue::submitQuery(new UpdateRowQuery(["HasVoted" => 1, "VoteDate" => time()], "Name", $player->getName()));
     }
 
-    /**
-     * @param Player $player
-     * @return bool
-     */
     public static function hasVoted(Player $player): bool {
-        if($player->namedtag === null) {
-            return false;
-        }
-        return (bool)$player->namedtag->getByte("HasVoted", 0);
+        return self::getPlayerRank($player)->getName() == "Voter";
     }
 
-    /**
-     * @param Player $player
-     * @return Rank
-     */
+    public static function checkRankExpiration(Player $player, int $voteTime) {
+        if(self::getPlayerRank($player)->getName() != "Voter") {
+            return;
+        }
+        if($voteTime + 86400 >= time()) {
+            return;
+        }
+
+        $player->sendMessage("§e§l§oRANKS:§r§f:§b Your VOTER rank expired. Vote again to extend it.");
+        if(self::getPlayerRank($player)->getName() == "Voter") {
+            self::setPlayerRank($player, "Guest", true);
+        }
+
+        QueryQueue::submitQuery(new UpdateRowQuery(["HasVoted" => 0], "Name", $player->getName()));
+    }
+
     public static function getPlayerRank(Player $player): Rank {
         if($player->namedtag === null) {
             return self::$ranks["guest"];
@@ -156,10 +119,6 @@ class RankDatabase {
         return self::$ranks[strtolower($player->namedtag->getString("Rank"))];
     }
 
-    /**
-     * @param string $rank
-     * @return Rank|null
-     */
     public static function getRankByName(string $rank): ?Rank {
         return self::$ranks[strtolower($rank)] ?? null;
     }

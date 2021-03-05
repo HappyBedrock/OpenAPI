@@ -52,5 +52,8 @@ class UpdateRowQuery extends AsyncQuery {
         }
 
         $mysqli->query("UPDATE " . DatabaseData::TABLE_PREFIX . "_{$this->table} SET " . implode(",", $updates) . " WHERE {$this->conditionKey}='{$this->conditionValue}';");
+        if($mysqli->error) {
+            var_dump($mysqli->error);
+        }
     }
 }

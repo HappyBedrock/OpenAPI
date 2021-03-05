@@ -6,6 +6,7 @@ namespace happybe\openapi;
 
 use happybe\openapi\bossbar\BossBarBuilder;
 use happybe\openapi\event\LoginQueryReceiveEvent;
+use happybe\openapi\form\EntityForm;
 use happybe\openapi\lang\LanguageManager;
 use happybe\openapi\mysql\DatabaseData;
 use happybe\openapi\mysql\query\ConnectQuery;
@@ -23,16 +24,13 @@ use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\network\mcpe\protocol\NpcRequestPacket;
 use pocketmine\network\mcpe\RakLibInterface;
 use pocketmine\plugin\PluginBase;
 
-/**
- * Class OpenAPI
- * @package happybe\openapi
- */
 class OpenAPI extends PluginBase implements Listener {
 
-    /** @var OpenAPI $instance */
+    /** @var OpenAPI */
     private static $instance;
 
     public function onEnable() {
@@ -91,6 +89,23 @@ class OpenAPI extends PluginBase implements Listener {
         if($packet instanceof LoginPacket) {
             DeviceData::saveDevice($packet->username, $packet->clientData["DeviceOS"]);
         }
+        if($packet instanceof NpcRequestPacket) {
+            $entity = $this->getServer()->findEntity($packet->entityRuntimeId);
+            if($entity === null) {
+                return;
+            }
+
+            $form = EntityForm::getFormByEntity($entity);
+            if($form === null) {
+                return;
+            }
+
+            switch ($packet->requestType) {
+                case $packet->actionType:
+                    $form->handleResponse($event->getPlayer(), $packet->actionType);
+                    break;
+            }
+        }
     }
 
     /**
@@ -100,8 +115,7 @@ class OpenAPI extends PluginBase implements Listener {
         $player = $event->getPlayer();
 
         QueryQueue::submitQuery(new LazyRegisterQuery($player->getName()), function (LazyRegisterQuery $query) use ($player) {
-            RankDatabase::savePlayerRank($player, $query->row["Rank"] ?? "ReadError");
-            RankDatabase::saveHasVoted($player, (int)($query->row["VoteDate"] ?? ""), ($query->row["HasVoted"] ?? "0") == "1");
+            RankDatabase::setPlayerRank($player, $query->row["Rank"] ?? "ReadError");
             LanguageManager::saveLanguage($player, $query->row["Language"] ?? "ReadError");
             PartyManager::handleLoginQuery($player, $query);
 
