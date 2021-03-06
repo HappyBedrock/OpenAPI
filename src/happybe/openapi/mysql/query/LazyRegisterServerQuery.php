@@ -8,30 +8,18 @@ use happybe\openapi\mysql\AsyncQuery;
 use happybe\openapi\mysql\DatabaseData;
 use mysqli;
 
-/**
- * Class LazyRegisterServerQuery
- * @package happybe\openapi\mysql\query
- */
 class LazyRegisterServerQuery extends AsyncQuery {
 
-    /** @var string $serverName */
+    /** @var string */
     public $serverName;
-    /** @var int $serverPort */
+    /** @var int */
     public $serverPort;
 
-    /**
-     * LazyRegisterServerQuery constructor.
-     * @param string $serverName
-     * @param int $serverPort
-     */
     public function __construct(string $serverName, int $serverPort) {
         $this->serverName = $serverName;
         $this->serverPort = $serverPort;
     }
 
-    /**
-     * @param mysqli $mysqli
-     */
     public function query(mysqli $mysqli): void {
         $result = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_Servers WHERE ServerName='{$this->serverName}';");
         if($result->num_rows === 0) {

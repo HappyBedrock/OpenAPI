@@ -8,28 +8,17 @@ use happybe\openapi\mysql\AsyncQuery;
 use mysqli;
 use pocketmine\Server;
 
-/**
- * Class FetchFriendsQuery
- * @package happybe\openapi\mysql\query
- */
 class FetchFriendsQuery extends AsyncQuery {
 
-    /** @var string $player */
+    /** @var string */
     public $player;
-    /** @var string|array $friends */
+    /** @var string|array */
     public $friends;
 
-    /**
-     * FetchFriendsQuery constructor.
-     * @param string $player
-     */
     public function __construct(string $player) {
         $this->player = $player;
     }
 
-    /**
-     * @param mysqli $mysqli
-     */
     public function query(mysqli $mysqli): void {
         $result = $mysqli->query("SELECT * FROM HB_Friends WHERE Name='{$this->player}';");
         if($result->num_rows === 0) {
@@ -46,11 +35,7 @@ class FetchFriendsQuery extends AsyncQuery {
         $this->friends = serialize(explode(",", $friends));
     }
 
-    /**
-     * @param Server $server
-     */
-    public function onCompletion(Server $server) {
+    public function complete(Server $server) {
         $this->friends = (array)unserialize($this->friends);
-        parent::onCompletion($server);
     }
 }

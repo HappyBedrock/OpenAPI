@@ -10,67 +10,40 @@ use happybe\openapi\mysql\QueryQueue;
 use happybe\openapi\portal\packets\TransferRequestPacket;
 use pocketmine\Player;
 
-/**
- * Class Server
- * @package happybe\openapi
- */
 class Server {
     use TimeFormatter;
 
-    /** @var string $serverName */
+    /** @var string */
     public $serverName;
-    /** @var string $serverAlias */
+    /** @var string */
     public $serverAlias;
 
-    /** @var string $serverAddress */
+    /** @var string */
     public $serverAddress;
-    /** @var int $serverPort */
+    /** @var int */
     public $serverPort;
 
-    /** @var int $onlinePlayers */
+    /** @var int */
     public $onlinePlayers;
-    /** @var bool $isOnline */
+    /** @var bool */
     public $isOnline;
-    /** @var bool $isWhitelisted */
-    public $isWhitelisted;
+    /** @var int */
+    public $whitelistState;
 
-    /**
-     * Server constructor.
-     *
-     * @param string $serverName
-     * @param string $serverAlias
-     * @param string $serverAddress
-     * @param int $serverPort
-     * @param int $onlinePlayers
-     * @param bool $isOnline
-     * @param bool $isWhitelisted
-     */
-    public function __construct(string $serverName, string $serverAlias, string $serverAddress, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
-        $this->update($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+    public function __construct(string $serverName, string $serverAlias, string $serverAddress, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, int $whitelistState = 0) {
+        $this->update($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $whitelistState);
     }
 
-    /**
-     * @param string $serverName
-     * @param string $serverAlias
-     * @param string $serverAddress
-     * @param int $serverPort
-     * @param int $onlinePlayers
-     * @param bool $isOnline
-     * @param bool $isWhitelisted
-     */
-    public function update(string $serverName, string $serverAlias, string $serverAddress, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
+    public function update(string $serverName, string $serverAlias, string $serverAddress, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, int $whitelistState = 0) {
         $this->serverName = $serverName;
         $this->serverAlias = $serverAlias;
         $this->serverAddress = $serverAddress;
         $this->serverPort = $serverPort;
         $this->onlinePlayers = $onlinePlayers;
         $this->isOnline = $isOnline;
-        $this->isWhitelisted = $isWhitelisted;
+        $this->whitelistState = $whitelistState;
     }
 
-    /**
-     * @param Player $player
-     */
     public function transferPlayerHere(Player $player) {
         $callback = function (CheckBanQuery $query = null) use ($player) {
             if($query !== null && $query->banned && ServerManager::getCurrentServer()->isLobby() && !$this->isLobby()) {
@@ -149,9 +122,14 @@ class Server {
     }
 
     /**
+     * @deprecated
      * @return bool
      */
-    public function isWhitelisted(): bool {
-        return $this->isWhitelisted;
+    public function whitelistState(?Player $player = null): bool {
+        if($player !== null && $player->hasPermission("happybe.vip")) {
+            return $this->whitelistState > 1;
+        }
+
+        return $this->whitelistState > 0;
     }
 }

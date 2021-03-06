@@ -15,23 +15,19 @@ use happybe\openapi\portal\PortalConnection;
 use mysqli;
 use pocketmine\scheduler\ClosureTask;
 
-/**
- * Class ServerManager
- * @package happybe\openapi
- */
 class ServerManager {
 
     protected const REFRESH_TICKS = 40;
 
-    /** @var Server[] $servers */
+    /** @var Server[] */
     private static $servers = [];
-    /** @var ServerGroup[] $serverGroups */
+    /** @var ServerGroup[] */
     private static $serverGroups = [];
 
-    /** @var Server $currentServer */
+    /** @var Server */
     private static $currentServer;
 
-    /** @var PortalConnection $portalConnection */
+    /** @var PortalConnection */
     private static $portalConnection;
 
     public static function init() {
@@ -56,7 +52,7 @@ class ServerManager {
                         (int)$row["ServerPort"],
                         (int)$row["OnlinePlayers"],
                         (bool)($row["IsOnline"] == "1"),
-                        (bool)($row["IsWhitelisted"] == "1")
+                        (int)($row["WhitelistState"])
                     );
                 }
             });
@@ -73,22 +69,13 @@ class ServerManager {
         self::getPortalConnection()->close();
     }
 
-    /**
-     * @param string $serverName
-     * @param string $serverAlias
-     * @param string $serverAddress
-     * @param int $serverPort
-     * @param int $onlinePlayers
-     * @param bool $isOnline
-     * @param bool $isWhitelisted
-     */
-    public static function updateServerData(string $serverName, string $serverAlias, string $serverAddress, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, bool $isWhitelisted = false) {
+    public static function updateServerData(string $serverName, string $serverAlias, string $serverAddress, int $serverPort, int $onlinePlayers = 0, bool $isOnline = false, int $whitelistState = 0) {
         if(!isset(self::$servers[$serverName])) {
             if(strpos($serverName, "-") === false) {
                 return;
             }
 
-            self::$servers[$serverName] = $server = new Server($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+            self::$servers[$serverName] = $server = new Server($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $whitelistState);
             OpenAPI::getInstance()->getLogger()->info("Registered new server ($serverName)");
 
             $groupName = substr($serverName, 0, strpos($serverName , "-"));
@@ -104,12 +91,9 @@ class ServerManager {
             return;
         }
 
-        self::$servers[$serverName]->update($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $isWhitelisted);
+        self::$servers[$serverName]->update($serverName, $serverAlias, $serverAddress, $serverPort, $onlinePlayers, $isOnline, $whitelistState);
     }
 
-    /**
-     * @return int
-     */
     public static function getOnlinePlayers(): int {
         $online = count(\pocketmine\Server::getInstance()->getOnlinePlayers());
         foreach (self::$servers as $server) {
@@ -123,25 +107,14 @@ class ServerManager {
         return $online;
     }
 
-    /**
-     * @return ServerGroup
-     */
     public static function getCurrentServerGroup(): ServerGroup {
         return self::getServerGroup(substr(self::getCurrentServer()->getServerName(), 0, strpos(self::getCurrentServer()->getServerName(), "-")));
     }
 
-    /**
-     * @param string $name
-     * @return ServerGroup|null
-     */
     public static function getServerGroup(string $name): ?ServerGroup {
         return self::$serverGroups[$name] ?? null;
     }
 
-    /**
-     * @param string $name
-     * @return Server|null
-     */
     public static function getServer(string $name): ?Server {
         return self::$servers[$name] ?? null;
     }
@@ -153,16 +126,10 @@ class ServerManager {
         return self::$serverGroups;
     }
 
-    /**
-     * @return Server
-     */
     public static function getCurrentServer(): Server {
         return self::$currentServer;
     }
 
-    /**
-     * @return PortalConnection
-     */
     public static function getPortalConnection(): PortalConnection {
         return self::$portalConnection;
     }

@@ -10,32 +10,21 @@ use happybe\openapi\mysql\DatabaseData;
 use mysqli;
 use pocketmine\Server;
 
-/**
- * Class CheckBanQuery
- * @package happybe\openapi\mysql\query
- */
 class CheckBanQuery extends AsyncQuery {
     use TimeFormatter;
 
-    /** @var string $player */
+    /** @var string */
     public $player;
 
-    /** @var bool $banned */
+    /** @var bool */
     public $banned = false;
-    /** @var string|array $banData */
+    /** @var string|array */
     public $banData;
 
-    /**
-     * CheckBanQuery constructor.
-     * @param string $player
-     */
     public function __construct(string $player) {
         $this->player = $player;
     }
 
-    /**
-     * @param mysqli $mysqli
-     */
     public function query(mysqli $mysqli): void {
         $result = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_Bans WHERE Name='{$this->player}';");
         if($result->num_rows === 0) {
@@ -52,13 +41,9 @@ class CheckBanQuery extends AsyncQuery {
         $this->banData = (string)serialize($row);
     }
 
-    /**
-     * @param Server $server
-     */
-    public function onCompletion(Server $server) {
+    public function complete(Server $server): void {
         if($this->banData !== null) {
             $this->banData = (array)unserialize((string)$this->banData);
         }
-        parent::onCompletion($server);
     }
 }

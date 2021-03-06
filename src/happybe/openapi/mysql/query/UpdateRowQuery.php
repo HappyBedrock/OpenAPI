@@ -8,29 +8,17 @@ use happybe\openapi\mysql\AsyncQuery;
 use happybe\openapi\mysql\DatabaseData;
 use mysqli;
 
-/**
- * Class UpdateRowQuery
- * @package happybe\openapi\mysql\query
- */
 class UpdateRowQuery extends AsyncQuery {
 
-    /** @var string $from */
+    /** @var string */
     public $updates;
-    /** @var string $conditionKey */
+    /** @var string */
     public $conditionKey;
-    /** @var string $conditionValue */
+    /** @var string  */
     public $conditionValue;
-    /** @var string $table */
+    /** @var string  */
     public $table;
 
-    /**
-     * UpdateRowQuery constructor.
-     *
-     * @param array $updates
-     * @param string $conditionKey
-     * @param string $conditionValue
-     * @param string|null $table
-     */
     public function __construct(array $updates, string $conditionKey, string $conditionValue, string $table = null) {
         $this->updates = serialize($updates);
         $this->conditionKey = $conditionKey;
@@ -42,9 +30,6 @@ class UpdateRowQuery extends AsyncQuery {
         $this->table = $table;
     }
 
-    /**
-     * @param mysqli $mysqli
-     */
     public function query(mysqli $mysqli): void {
         $updates = [];
         foreach (unserialize($this->updates) as $k => $v) {

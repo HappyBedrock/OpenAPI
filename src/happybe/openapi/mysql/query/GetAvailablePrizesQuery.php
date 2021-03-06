@@ -9,31 +9,20 @@ use happybe\openapi\mysql\DatabaseData;
 use mysqli;
 use pocketmine\Server;
 
-/**
- * Class GetAvailablePrizesQuery
- * @package happybe\openapi\mysql\query
- */
 class GetAvailablePrizesQuery extends AsyncQuery {
 
-    /** @var string $player */
+    /** @var string */
     public $player;
 
-    /** @var string|array $particlePrizes */
+    /** @var string|array */
     public $particlePrizes;
-    /** @var string|array $gadgetPrizes */
+    /** @var string|array  */
     public $gadgetPrizes;
 
-    /**
-     * GetAvailablePrizesQuery constructor.
-     * @param string $player
-     */
     public function __construct(string $player) {
         $this->player = $player;
     }
 
-    /**
-     * @param mysqli $mysqli
-     */
     public function query(mysqli $mysqli): void {
         $particlesQuery = $mysqli->query("SELECT * FROM " . DatabaseData::TABLE_PREFIX . "_Particles WHERE Name='{$this->player}';");
         $particlePrizes = [];
@@ -54,12 +43,8 @@ class GetAvailablePrizesQuery extends AsyncQuery {
         $this->gadgetPrizes = serialize($gadgetPrizes);
     }
 
-    /**
-     * @param Server $server
-     */
-    public function onCompletion(Server $server) {
+    public function complete(Server $server): void {
         $this->particlePrizes = (array)unserialize((string)$this->particlePrizes);
         $this->gadgetPrizes = (array)unserialize((string)$this->gadgetPrizes);
-        parent::onCompletion($server);
     }
 }
