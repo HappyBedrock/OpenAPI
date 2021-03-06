@@ -72,60 +72,42 @@ class Server {
         $callback();
     }
 
-    /**
-     * @return bool
-     */
     public function isLobby(): bool {
         return strpos($this->getServerName(), "Hub") !== false;
     }
 
-    /**
-     * @return string
-     */
     public function getServerName(): string {
         return $this->serverName;
     }
 
-    /**
-     * @return string
-     */
     public function getServerAlias(): string {
         return $this->serverAlias;
     }
 
-    /**
-     * @return string
-     */
     public function getServerAddress(): string {
         return $this->serverAddress;
     }
 
-    /**
-     * @return int
-     */
     public function getServerPort(): int {
         return $this->serverPort;
     }
 
-    /**
-     * @return int
-     */
     public function getOnlinePlayers(): int {
         return $this->onlinePlayers;
     }
 
-    /**
-     * @return bool
-     */
     public function isOnline(): bool {
         return $this->isOnline;
     }
 
+    public function getWhitelistState(): int {
+        return $this->whitelistState;
+    }
+
     /**
      * @deprecated
-     * @return bool
      */
-    public function whitelistState(?Player $player = null): bool {
+    public function isWhitelisted(?Player $player = null): bool {
         if($player !== null && $player->hasPermission("happybe.vip")) {
             return $this->whitelistState > 1;
         }

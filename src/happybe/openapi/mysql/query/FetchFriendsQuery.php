@@ -35,7 +35,7 @@ class FetchFriendsQuery extends AsyncQuery {
         $this->friends = serialize(explode(",", $friends));
     }
 
-    public function complete(Server $server) {
+    public function complete(Server $server): void {
         $this->friends = (array)unserialize($this->friends);
     }
 }

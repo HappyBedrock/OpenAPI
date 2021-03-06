@@ -7,44 +7,25 @@ namespace happybe\openapi\utils;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\Player;
 
-/**
- * Class DeviceData
- * @package happybe\openapi\utils
- */
 class DeviceData {
 
-    /** @var int[] $deviceOS */
+    /** @var int[] */
     private static $deviceOS = [];
 
-    /**
-     * @param string $name
-     * @param int $os
-     */
     public static function saveDevice(string $name, int $os) {
         self::$deviceOS[$name] = $os;
     }
 
-    /**
-     * @param Player $player
-     */
     public static function unloadPlayer(Player $player) {
         if(isset(self::$deviceOS[$player->getName()])) {
             unset(self::$deviceOS[$player->getName()]);
         }
     }
 
-    /**
-     * @param Player $player
-     * @return int
-     */
     public static function getDeviceId(Player $player): int {
         return self::$deviceOS[$player->getName()] ?? -1;
     }
 
-    /**
-     * @param Player $player
-     * @return string
-     */
     public static function getDeviceName(Player $player): string {
         $deviceOS = self::getDeviceId($player);
 

@@ -10,37 +10,23 @@ class ServerGroup {
 
     public const ONLINE_LIMIT = 30;
 
-    /** @var string $groupName */
+    /** @var string */
     private $groupName;
-    /** @var Server[] $servers */
+    /** @var Server[] */
     private $servers = [];
 
-    /**
-     * ServerGroup constructor.
-     * @param string $groupName
-     */
     public function __construct(string $groupName) {
         $this->groupName = $groupName;
     }
 
-    /**
-     * @param Server $server
-     * @return bool
-     */
     public function canAddServer(Server $server): bool {
         return strpos($server->getServerName(), $this->getGroupName()) !== false;
     }
 
-    /**
-     * @param Server $server
-     */
     public function addServer(Server $server) {
         $this->servers[] = $server;
     }
 
-    /**
-     * @return int
-     */
     public function getOnlinePlayers(): int {
         $online = 0;
         foreach ($this->servers as $server) {
@@ -52,9 +38,6 @@ class ServerGroup {
 
     /**
      * Returns server which has player count < self::ONLINE_LIMIT is online
-     *
-     * @param Player $player
-     * @return Server|null
      */
     public function getFitServer(Player $player): ?Server {
         $servers = $this->servers;
@@ -68,9 +51,17 @@ class ServerGroup {
         /** @var Server|null $targetServer */
         $targetServer = null;
         foreach ($toSort as $name => $onlinePlayers) {
-            if(!$servers[$name]->isOnline() || (!$player->hasPermission("happybe.operator") && $servers[$name]->whitelistState())) {
+            if(!$servers[$name]->isOnline()) {
                 continue;
             }
+            if(
+                ($servers[$name]->getWhitelistState() > 2 && !$player->hasPermission("happype.operator")) ||
+                ($servers[$name]->getWhitelistState() > 1 && !$player->hasPermission("happype.vip")) ||
+                ($servers[$name]->getWhitelistState() > 0 && !$player->hasPermission("happype.voter"))
+            ) {
+                continue;
+            }
+
 
             if($targetServer === null) {
                 $targetServer = $servers[$name];
@@ -94,9 +85,6 @@ class ServerGroup {
         return $this->servers;
     }
 
-    /**
-     * @return string
-     */
     public function getGroupName(): string {
         return $this->groupName;
     }

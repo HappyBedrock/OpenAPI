@@ -52,7 +52,7 @@ class LazyRegisterQuery extends AsyncQuery {
         self::$tablesToRegister[] = DatabaseData::TABLE_PREFIX . "_" . $table;
     }
 
-    public function complete(Server $server) {
+    public function complete(Server $server): void {
         $this->row = (array)unserialize((string)$this->row);
         $this->partiesRow = (array)unserialize((string)$this->partiesRow);
         $this->friendsRow = (array)unserialize((string)$this->friendsRow);

@@ -19,12 +19,14 @@ class EntityForm extends SimpleForm {
     /** @var EntityForm[] */
     private static $handlers = [];
 
-    public function linkToEntity(Entity $entity) {
+    public function linkToEntity(Entity $entity, bool $allowChangeNameTag = true) {
         if($entity->namedtag !== null && $entity->namedtag->hasTag("IsLinkedWithForm")) {
             throw new InvalidStateException("Entity is already linked with another form.");
         }
 
-        $entity->setNameTag($this->data["title"]);
+        if($allowChangeNameTag) {
+            $entity->setNameTag($this->data["title"]);
+        }
 
         $entity->getDataPropertyManager()->setByte(Entity::DATA_HAS_NPC_COMPONENT, 1);
         $entity->getDataPropertyManager()->setString(Entity::DATA_INTERACTIVE_TAG, $this->data["content"]);
@@ -45,7 +47,16 @@ class EntityForm extends SimpleForm {
         return self::$handlers[$entity->getId()] ?? null;
     }
 
-    public function jsonSerialize() {
+    /**
+     * @internal
+     */
+    public static function unsetEntityData(Entity $entity) {
+        if(isset(self::$handlers[$entity->getId()])) {
+            unset(self::$handlers[$entity->getId()]);
+        }
+    }
+
+    public function jsonSerialize(): array {
         throw new InvalidStateException("EntityForm cannot be sent with Player->sendForm()");
     }
 }
