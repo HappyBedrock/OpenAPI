@@ -115,6 +115,10 @@ class OpenAPI extends PluginBase implements Listener {
         $player = $event->getPlayer();
 
         QueryQueue::submitQuery(new LazyRegisterQuery($player->getName()), function (LazyRegisterQuery $query) use ($player) {
+            if($player === null || $player->isClosed()) {
+                return;
+            }
+
             RankDatabase::setPlayerRank($player, $query->row["Rank"] ?? "ReadError");
             LanguageManager::saveLanguage($player, $query->row["Language"] ?? "ReadError");
             PartyManager::handleLoginQuery($player, $query);
