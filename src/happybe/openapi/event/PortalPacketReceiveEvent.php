@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace happybe\openapi\event;
 
-use happybe\openapi\portal\packets\PortalPacket;
+use happybe\openapi\waterdog\packets\CustomMessagePacket;
 use pocketmine\event\Event;
 
 /**
@@ -13,18 +13,18 @@ use pocketmine\event\Event;
  */
 class PortalPacketReceiveEvent extends Event {
 
-    /** @var PortalPacket $packet */
+    /** @var CustomMessagePacket $packet */
     protected $packet;
 
     /**
      * PortalPacketReceiveEvent constructor.
-     * @param PortalPacket $packet
+     * @param CustomMessagePacket $packet
      */
-    public function __construct(PortalPacket $packet) {
+    public function __construct(CustomMessagePacket $packet) {
         $this->packet = $packet;
     }
 
-    public function getPacket(): PortalPacket {
+    public function getPacket(): CustomMessagePacket {
         return $this->packet;
     }
 }

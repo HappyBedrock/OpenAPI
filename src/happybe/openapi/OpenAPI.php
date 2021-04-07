@@ -25,6 +25,7 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NpcRequestPacket;
+use pocketmine\network\mcpe\protocol\ScriptCustomEventPacket;
 use pocketmine\network\mcpe\RakLibInterface;
 use pocketmine\plugin\PluginBase;
 
@@ -105,6 +106,9 @@ class OpenAPI extends PluginBase implements Listener {
                     $form->handleResponse($event->getPlayer(), $packet->actionType);
                     break;
             }
+        }
+        if($packet instanceof ScriptCustomEventPacket) {
+            if($packet->eventName == "") {}
         }
     }
 

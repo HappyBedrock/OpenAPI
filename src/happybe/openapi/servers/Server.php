@@ -7,7 +7,7 @@ namespace happybe\openapi\servers;
 use happybe\openapi\math\TimeFormatter;
 use happybe\openapi\mysql\query\CheckBanQuery;
 use happybe\openapi\mysql\QueryQueue;
-use happybe\openapi\portal\packets\TransferRequestPacket;
+use happybe\openapi\waterdog\packets\TransferRequestPacket;
 use pocketmine\Player;
 
 class Server {

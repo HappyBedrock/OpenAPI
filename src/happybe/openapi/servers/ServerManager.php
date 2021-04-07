@@ -10,8 +10,8 @@ use happybe\openapi\mysql\query\ServerSyncQuery;
 use happybe\openapi\mysql\query\UpdateRowQuery;
 use happybe\openapi\mysql\QueryQueue;
 use happybe\openapi\OpenAPI;
-use happybe\openapi\portal\PacketPool;
-use happybe\openapi\portal\PortalConnection;
+use happybe\openapi\waterdog\ResponsePool;
+use happybe\openapi\waterdog\PortalConnection;
 use mysqli;
 use pocketmine\scheduler\ClosureTask;
 
@@ -58,7 +58,7 @@ class ServerManager {
             });
         }), self::REFRESH_TICKS);
 
-        PacketPool::init();
+        ResponsePool::init();
         self::$portalConnection = new PortalConnection();
     }
 
