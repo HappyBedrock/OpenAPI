@@ -9,6 +9,7 @@ use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
 use pocketmine\network\mcpe\protocol\RemoveActorPacket;
+use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\Player;
 use pocketmine\utils\UUID;
 
@@ -39,7 +40,7 @@ class FloatingText {
         $this->packet->entityRuntimeId = $this->getEntityRuntimeId();
         $this->packet->entityUniqueId = $this->getEntityRuntimeId();
         $this->packet->position = $position;
-        $this->packet->item = Item::get(0);
+        $this->packet->item = ItemStackWrapper::legacy(Item::get(0));
 
         $this->packet->metadata = [
             Entity::DATA_FLAGS => [Entity::DATA_TYPE_LONG, 1 << Entity::DATA_FLAG_IMMOBILE],
